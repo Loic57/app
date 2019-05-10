@@ -1,0 +1,13 @@
+type Property @model {
+  id: ID!
+  title: String!
+  category: String!
+  price: Float!
+  bedrooms: Int
+  bathrooms: Int
+  area: Int
+  status: String
+  rooms: Int
+  garages: Int
+  parkings: Int
+}
