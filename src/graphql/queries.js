@@ -15,6 +15,8 @@ export const getProperty = gql`query GetProperty($id: ID!) {
     rooms
     garages
     parkings
+    location
+    exact_location
   }
 }
 `;
@@ -36,6 +38,8 @@ export const listPropertys = gql`query ListPropertys(
       rooms
       garages
       parkings
+      location
+      exact_location
     }
     nextToken
   }

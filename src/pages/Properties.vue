@@ -6,7 +6,7 @@
       <form action="">
         <div class="input">
           <label>Type de bien</label><br>
-          <select v-model="categoryValue" @change="updateQuery()">
+          <select v-model="CategoryValue" @change="updateQuery()">
             <option value="" :selected="true">Sélectionner un type de bien</option>
             <option value="Tous">Tous</option>
             <option value="Maison">Maison</option>
@@ -47,6 +47,8 @@
             v-on:placechanged="getAddressData"
             types="(cities)"
             country="be"
+            v-model="LocationValue"
+            @change="updateQuery()"
         >
         </vue-google-autocomplete>
         </div>
@@ -94,11 +96,12 @@
       return {
         properties: [],
         loading: 0,
-        categoryValue: 'Tous',
+        CategoryValue: 'Tous',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
         PriceMinValue: 0,
         PriceMaxValue: 99999999,
+        LocationValue: '',
         PriceRange: {
           "10000":"10000",
           "50000":"50000",
@@ -142,8 +145,7 @@
           "180":"180",
           "190":"190",
           "200":"200"
-        },
-        address: ''
+        }
       }
     },
     apollo: { 
@@ -164,7 +166,10 @@
         this.$apollo.queries.properties.refetch({
           "filter": {
             "category": {
-              "contains": this.categoryValue
+              "contains": this.CategoryValue
+            },
+            "location": {
+              "contains": this.LocationValue
             },
             "area": {
               "ge": this.AreaMinValue, 
@@ -185,6 +190,7 @@
       */
       getAddressData: function (addressData, placeResultData, id) {
           this.address = addressData;
+          this.LocationValue = this.address.locality;
       }
     }
   }
