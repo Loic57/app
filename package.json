@@ -21,7 +21,9 @@
     "graphql-tag": "^2.10.1",
     "vue": "^2.6.10",
     "vue-apollo": "^3.0.0-beta.29",
-    "vue-search-select": "^2.8.3"
+    "vue-google-autocomplete": "^1.1.0",
+    "vue-search-select": "^2.8.3",
+    "vuemit": "^1.0.9"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.7.0",

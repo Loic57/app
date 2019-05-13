@@ -7,6 +7,7 @@ import Amplify, * as AmplifyModules from 'aws-amplify'
 import { AmplifyPlugin } from 'aws-amplify-vue'
 import awsmobile from './aws-exports'
 import AWSAppSyncClient from 'aws-appsync'
+import reset from './scss/reset.scss'
 
 
 //init graphql server

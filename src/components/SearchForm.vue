@@ -2,7 +2,7 @@
   <form action="">
     <div class="input">
       <label>Type de bien</label><br>
-      <select v-model="categoryInput" @change="onChange()">
+      <select v-model="categoryInput" @change="updateCategoryValue()">
 				<option value="Tous" selected>Sélectionner un type de bien</option>
 				<option value="Maison">Maison</option>
 				<option value="Appartement">Appartement</option>
@@ -65,37 +65,8 @@
 </template>
 
 <script>
-	import { API, graphqlOperation } from 'aws-amplify'
-	import { listPropertys } from '../graphql/queries';
-	import gql from 'graphql-tag'
-
   export default {
 		name: 'SearchForm',
-    components: {
-      
-		},
-		data() {
-			return {
-				categoryInput: 'Tous'
-			}
-		},
-		apollo: { //Apollo object
-      properties: { //property
-				query: listPropertys,
-				variables() {
-  				return {"filter": {"category": {"contains": this.categoryInput}}}
-				},
-				update(data) {
-          return data.listPropertys.items;
-        }
-			}
-		},
-		methods: {
-			onChange() {
-				//this.$apollo.queries.properties.skip = false
-				this.$apollo.queries.properties.refetch()
-			}
-		}
   }
 </script>
 

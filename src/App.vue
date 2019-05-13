@@ -29,6 +29,7 @@ export default {
     max-width: 1170px;
     padding: 0 15px;
     margin: auto;
+    width: 100%;
   }
 
   img {

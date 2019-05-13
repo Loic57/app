@@ -6,110 +6,187 @@
       <form action="">
         <div class="input">
           <label>Type de bien</label><br>
-          <select v-model="categoryInput" @change="onChange()">
-            <option value="Tous" selected>Sélectionner un type de bien</option>
+          <select v-model="categoryValue" @change="updateQuery()">
+            <option value="" :selected="true">Sélectionner un type de bien</option>
+            <option value="Tous">Tous</option>
             <option value="Maison">Maison</option>
             <option value="Appartement">Appartement</option>
           </select>
-          {{categoryInput}}
         </div>
 
         <div class="input">
           <label>Surface en m²</label><br>
-          <select>
-            <option>Min</option>
-            <option>10</option>
-            <option>20</option>
-            <option>30</option>
-            <option>40</option>
-            <option>50</option>
-            <option>60</option>
-            <option>70</option>
-            <option>80</option>
-            <option>90</option>
-            <option>100</option>
-            <option>110</option>
-            <option>120</option>
-            <option>130</option>
-            <option>140</option>
-            <option>150</option>
-            <option>160</option>
-            <option>170</option>
-            <option>180</option>
-            <option>190</option>
-            <option>200</option>
+          <select v-model="AreaMinValue" @change="updateQuery()">
+            <option :selected="true">Min</option>
+            <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
           </select>
-          <select>
-            <option>Max</option>
-            <option>10</option>
-            <option>20</option>
-            <option>30</option>
-            <option>40</option>
-            <option>50</option>
-            <option>60</option>
-            <option>70</option>
-            <option>80</option>
-            <option>90</option>
-            <option>100</option>
-            <option>110</option>
-            <option>120</option>
-            <option>130</option>
-            <option>140</option>
-            <option>150</option>
-            <option>160</option>
-            <option>170</option>
-            <option>180</option>
-            <option>190</option>
-            <option>200</option>
+          <select v-model="AreaMaxValue" @change="updateQuery()">
+            <option :selected="true">Max</option>
+            <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
           </select>
         </div>
+
+        <div class="input">
+          <label>Prix</label><br>
+          <select v-model="PriceMinValue" id="PriceMin" @change="updateQuery()">
+            <option value="" :selected="true">Min</option>
+            <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
+          </select>
+          <select v-model="PriceMaxValue" id="PriceMax" @change="updateQuery()">
+            <option value="" :selected="true">Max</option>
+            <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
+          </select>
+        </div>
+
+        <div class="input">
+          <vue-google-autocomplete
+            ref="address"
+            id="map"
+            classname="form-control"
+            placeholder="Start typing"
+            v-on:placechanged="getAddressData"
+            types="(cities)"
+            country="be"
+        >
+        </vue-google-autocomplete>
+        </div>
       </form>
-      <div class="grid-flex">
-        <div class="column" v-for="property in properties" :key="property.id">
+    
+    <!--  <ApolloQuery :query="query">
+        <template slot-scope="{ result: { loading, error, data } }">
+          <span v-if="loading">Loading...</span>
+          <span v-else-if="error">An error occured</span>
+
+          <div v-if="data">
+            <div class="grid-flex" v-if="data.listPropertys.items.length">
+              <div class="column" v-for="property in data.listPropertys.items" :key="property.id">
+                <Property :property="property"/>
+              </div>
+            </div>
+            <span v-else>empty</span>
+          </div>
+        </template>
+      </ApolloQuery>-->
+
+      <div class="grid-flex" >
+        <div class="column w-33" v-for="property in properties" :key="property.id">
           <Property :property="property"/>
         </div>
       </div>
 
     </div>
+    
   </div>
 </template>
 
 
 <script>
   import Property from "../components/Property"
-  //import SearchForm from "../components/SearchForm"
-  import { API, graphqlOperation } from 'aws-amplify'
   import { listPropertys } from '../graphql/queries';
-  import gql from 'graphql-tag'
-
+  import VueGoogleAutocomplete from 'vue-google-autocomplete'
 
   export default {
     components: {
       Property,
-      //SearchForm
+      VueGoogleAutocomplete
     },
     data() {
       return {
-        // Initialize your apollo data
         properties: [],
         loading: 0,
-        categoryInput: 'Tous'
+        categoryValue: 'Tous',
+        AreaMinValue: 0,
+        AreaMaxValue: 999999,
+        PriceMinValue: 0,
+        PriceMaxValue: 99999999,
+        PriceRange: {
+          "10000":"10000",
+          "50000":"50000",
+          "100000":"100000",
+          "150000":"150000",
+          "200000":"200000",
+          "250000":"250000",
+          "300000":"300000",
+          "350000":"350000",
+          "400000":"400000",
+          "500000":"500000",
+          "550000":"550000",
+          "600000":"600000",
+          "650000":"650000",
+          "700000":"700000",
+          "750000":"750000",
+          "800000":"800000",
+          "850000":"850000",
+          "900000":"900000",
+          "950000":"950000",
+          "1000000":"1000000"
+        },
+        AreaRange: {
+          "10":"10",
+          "20":"20",
+          "30":"30",
+          "40":"40",
+          "50":"50",
+          "60":"60",
+          "70":"70",
+          "80":"80",
+          "90":"90",
+          "100":"100",
+          "110":"110",
+          "120":"120",
+          "130":"130",
+          "140":"140",
+          "150":"150",
+          "160":"160",
+          "170":"170",
+          "180":"180",
+          "190":"190",
+          "200":"200"
+        },
+        address: ''
       }
     },
-    apollo: { //Apollo object
-      properties: { //property
+    apollo: { 
+      properties: { 
         query: listPropertys,
         update(data) {
           return data.listPropertys.items;
         }
       }
     },
-		methods: {
-			onChange() {
-				//this.$apollo.queries.properties.skip = false
-				this.$apollo.queries.properties.refetch()
-			}
-		}
+    mounted() {
+      // To demonstrate functionality of exposed component functions
+      // Here we make focus on the user input
+      this.$refs.address.focus();
+    },
+    methods: {
+      updateQuery() {
+        this.$apollo.queries.properties.refetch({
+          "filter": {
+            "category": {
+              "contains": this.categoryValue
+            },
+            "area": {
+              "ge": this.AreaMinValue, 
+              "le": this.AreaMaxValue
+            },
+            "price": {
+              "ge": this.PriceMinValue, 
+              "le": this.PriceMaxValue
+            }
+          }
+        })
+      },
+      /**
+      * When the location found
+      * @param {Object} addressData Data of the found location
+      * @param {Object} placeResultData PlaceResult object
+      * @param {String} id Input container ID
+      */
+      getAddressData: function (addressData, placeResultData, id) {
+          this.address = addressData;
+      }
+    }
   }
 </script>
 
