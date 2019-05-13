@@ -10,6 +10,7 @@ type Property @model {
   rooms: Int
   garages: Int
   parkings: Int,
-  location: String! 
+  location: [String]!
   exact_location: String
+  objectif: String!
 }

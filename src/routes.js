@@ -1,6 +1,7 @@
 
 import VueRouter from 'vue-router'
 import Properties from './pages/Properties.vue'
+import SingleProperty from './pages/SingleProperty.vue'
 import Home from './pages/Home.vue'
 
 const router = new VueRouter({
@@ -12,6 +13,11 @@ const router = new VueRouter({
     { 
       path: '/properties', 
       component: Properties 
+    },
+    { 
+      path: '/properties/:id', 
+      component: SingleProperty,
+      name: 'SingleProperty'
     }
   ]
 })

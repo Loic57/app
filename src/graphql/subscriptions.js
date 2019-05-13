@@ -14,6 +14,9 @@ export const onCreateProperty = `subscription OnCreateProperty {
     rooms
     garages
     parkings
+    location
+    exact_location
+    objectif
   }
 }
 `;
@@ -30,6 +33,9 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     rooms
     garages
     parkings
+    location
+    exact_location
+    objectif
   }
 }
 `;
@@ -46,6 +52,9 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     rooms
     garages
     parkings
+    location
+    exact_location
+    objectif
   }
 }
 `;

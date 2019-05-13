@@ -1,66 +1,89 @@
 {
-    "providers": {
-        "awscloudformation": {
-            "AuthRoleName": "app-dev-20190510104637-authRole",
-            "UnauthRoleArn": "arn:aws:iam::196383448089:role/app-dev-20190510104637-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::196383448089:role/app-dev-20190510104637-authRole",
-            "Region": "eu-west-2",
-            "DeploymentBucketName": "app-dev-20190510104637-deployment",
-            "UnauthRoleName": "app-dev-20190510104637-unauthRole",
-            "StackName": "app-dev-20190510104637",
-            "StackId": "arn:aws:cloudformation:eu-west-2:196383448089:stack/app-dev-20190510104637/21619bb0-7300-11e9-bac8-0aa9634c03a6"
-        },
-        "categories": {
-            "auth": {
-                "cognito4b968b7f": {}
-            }
-        }
-    },
-    "api": {
-        "graphql": {
-            "service": "AppSync",
-            "providerPlugin": "awscloudformation",
-            "output": {
-                "securityType": "API_KEY"
-            },
-            "providerMetadata": {
-                "s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/api/cloudformation-template.json",
-                "logicalId": "apigraphql"
-            },
-            "lastPushTimeStamp": "2019-05-13T13:32:52.070Z"
-        }
-    },
-    "hosting": {
-        "S3AndCloudFront": {
-            "service": "S3AndCloudFront",
-            "providerPlugin": "awscloudformation",
-            "providerMetadata": {
-                "s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/hosting/template.json",
-                "logicalId": "hostingS3AndCloudFront"
-            },
-            "lastPushTimeStamp": "2019-05-13T13:32:52.056Z"
-        }
-    },
-    "auth": {
-        "cognito4b968b7f": {
-            "service": "Cognito",
-            "providerPlugin": "awscloudformation",
-            "providerMetadata": {
-                "s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/auth/cognito4b968b7f-cloudformation-template.yml",
-                "logicalId": "authcognito4b968b7f"
-            },
-            "lastPushTimeStamp": "2019-05-13T13:32:52.047Z"
-        }
-    },
-    "storage": {
-        "s3d8a5964d": {
-            "service": "S3",
-            "providerPlugin": "awscloudformation",
-            "providerMetadata": {
-                "s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
-                "logicalId": "storages3d8a5964d"
-            },
-            "lastPushTimeStamp": "2019-05-13T13:32:52.086Z"
-        }
-    }
+	"providers": {
+		"awscloudformation": {
+			"AuthRoleName": "app-dev-20190510104637-authRole",
+			"UnauthRoleArn": "arn:aws:iam::196383448089:role/app-dev-20190510104637-unauthRole",
+			"AuthRoleArn": "arn:aws:iam::196383448089:role/app-dev-20190510104637-authRole",
+			"Region": "eu-west-2",
+			"DeploymentBucketName": "app-dev-20190510104637-deployment",
+			"UnauthRoleName": "app-dev-20190510104637-unauthRole",
+			"StackName": "app-dev-20190510104637",
+			"StackId": "arn:aws:cloudformation:eu-west-2:196383448089:stack/app-dev-20190510104637/21619bb0-7300-11e9-bac8-0aa9634c03a6"
+		},
+		"categories": {
+			"auth": {
+				"cognito4b968b7f": {}
+			}
+		}
+	},
+	"api": {
+		"graphql": {
+			"service": "AppSync",
+			"providerPlugin": "awscloudformation",
+			"output": {
+				"securityType": "API_KEY",
+				"GraphQLAPIIdOutput": "a3zymkgmlbg5bisetwardxl52e",
+				"GraphQLAPIEndpointOutput": "https://pffeaxgw7bad5obxfhddq4k3rm.appsync-api.eu-west-2.amazonaws.com/graphql",
+				"GraphQLAPIKeyOutput": "da2-ajhuqgbbbze3jkzknzps4jeawi"
+			},
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+				"logicalId": "apigraphql"
+			},
+			"lastPushTimeStamp": "2019-05-13T19:17:34.645Z",
+			"lastPushDirHash": "omQjOgvjkb3X6ONLN7J/rvzSsdg="
+		}
+	},
+	"hosting": {
+		"S3AndCloudFront": {
+			"service": "S3AndCloudFront",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/hosting/template.json",
+				"logicalId": "hostingS3AndCloudFront"
+			},
+			"lastPushTimeStamp": "2019-05-13T19:17:33.883Z",
+			"output": {
+				"S3BucketSecureURL": "https://app-20190510104907-hostingbucket-dev.s3.amazonaws.com",
+				"WebsiteURL": "http://app-20190510104907-hostingbucket-dev.s3-website.eu-west-2.amazonaws.com",
+				"Region": "eu-west-2",
+				"HostingBucketName": "app-20190510104907-hostingbucket-dev"
+			}
+		}
+	},
+	"auth": {
+		"cognito4b968b7f": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/auth/cognito4b968b7f-cloudformation-template.yml",
+				"logicalId": "authcognito4b968b7f"
+			},
+			"lastPushTimeStamp": "2019-05-13T19:17:33.886Z",
+			"output": {
+				"AppClientSecret": "kln6cfacs0vlc8t3vjv0mao1emispudvjpnnbm61g2e5442mf1o",
+				"UserPoolId": "eu-west-2_8gec19OSF",
+				"AppClientIDWeb": "3t5650b7jh6nev93h79988380l",
+				"AppClientID": "50s1uui9o4lgfp1qqlqusnbns6",
+				"IdentityPoolId": "eu-west-2:651abcd2-7d53-45b2-a6d7-7324f44dc1bf",
+				"IdentityPoolName": "cognito4b968b7f_identitypool_4b968b7f__dev",
+				"UserPoolName": "cognito4b968b7f_userpool_4b968b7f"
+			}
+		}
+	},
+	"storage": {
+		"s3d8a5964d": {
+			"service": "S3",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
+				"logicalId": "storages3d8a5964d"
+			},
+			"lastPushTimeStamp": "2019-05-13T19:17:33.890Z",
+			"output": {
+				"BucketName": "app4fd3bd165a5f4b1e8fb0c79f167a6567-dev",
+				"Region": "eu-west-2"
+			}
+		}
+	}
 }

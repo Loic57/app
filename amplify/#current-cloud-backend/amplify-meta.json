@@ -9,6 +9,11 @@
 			"UnauthRoleName": "app-dev-20190510104637-unauthRole",
 			"StackName": "app-dev-20190510104637",
 			"StackId": "arn:aws:cloudformation:eu-west-2:196383448089:stack/app-dev-20190510104637/21619bb0-7300-11e9-bac8-0aa9634c03a6"
+		},
+		"categories": {
+			"auth": {
+				"cognito4b968b7f": {}
+			}
 		}
 	},
 	"api": {
@@ -25,8 +30,8 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/api/cloudformation-template.json",
 				"logicalId": "apigraphql"
 			},
-			"lastPushTimeStamp": "2019-05-12T15:19:19.496Z",
-			"lastPushDirHash": "RYYAUezDhfM9pWzX4mFBb1JzK9M="
+			"lastPushTimeStamp": "2019-05-13T19:17:34.645Z",
+			"lastPushDirHash": "omQjOgvjkb3X6ONLN7J/rvzSsdg="
 		}
 	},
 	"hosting": {
@@ -37,14 +42,13 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/hosting/template.json",
 				"logicalId": "hostingS3AndCloudFront"
 			},
-			"lastPushTimeStamp": "2019-05-12T15:19:18.339Z",
+			"lastPushTimeStamp": "2019-05-13T19:17:33.883Z",
 			"output": {
 				"S3BucketSecureURL": "https://app-20190510104907-hostingbucket-dev.s3.amazonaws.com",
 				"WebsiteURL": "http://app-20190510104907-hostingbucket-dev.s3-website.eu-west-2.amazonaws.com",
 				"Region": "eu-west-2",
 				"HostingBucketName": "app-20190510104907-hostingbucket-dev"
-			},
-			"lastPushDirHash": "/jtXDHPCNsOzDK37xo237kATljg="
+			}
 		}
 	},
 	"auth": {
@@ -55,7 +59,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/auth/cognito4b968b7f-cloudformation-template.yml",
 				"logicalId": "authcognito4b968b7f"
 			},
-			"lastPushTimeStamp": "2019-05-12T15:19:18.343Z",
+			"lastPushTimeStamp": "2019-05-13T19:17:33.886Z",
 			"output": {
 				"AppClientSecret": "kln6cfacs0vlc8t3vjv0mao1emispudvjpnnbm61g2e5442mf1o",
 				"UserPoolId": "eu-west-2_8gec19OSF",
@@ -64,8 +68,7 @@
 				"IdentityPoolId": "eu-west-2:651abcd2-7d53-45b2-a6d7-7324f44dc1bf",
 				"IdentityPoolName": "cognito4b968b7f_identitypool_4b968b7f__dev",
 				"UserPoolName": "cognito4b968b7f_userpool_4b968b7f"
-			},
-			"lastPushDirHash": "/DfTBjoW2vXYOU8km0OQfYXENbU="
+			}
 		}
 	},
 	"storage": {
@@ -76,12 +79,11 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
 				"logicalId": "storages3d8a5964d"
 			},
-			"lastPushTimeStamp": "2019-05-12T15:19:18.346Z",
+			"lastPushTimeStamp": "2019-05-13T19:17:33.890Z",
 			"output": {
 				"BucketName": "app4fd3bd165a5f4b1e8fb0c79f167a6567-dev",
 				"Region": "eu-west-2"
-			},
-			"lastPushDirHash": "hgZGmbcifIpURZLUkXyVzGWzld8="
+			}
 		}
 	}
 }

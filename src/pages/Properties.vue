@@ -4,6 +4,13 @@
       <h1>Biens immobiliers</h1>
       <h4 v-if="loading">Loading...</h4>
       <form action="">
+
+        <div class="input">
+          <label><input type="radio" name="choix" v-model="ObjectifValue" value="acheter" @change="updateQuery()" /> Acheter</label><br>
+          <label><input type="radio" name="choix" v-model="ObjectifValue" value="louer" @change="updateQuery()" /> Louer</label><br>
+          <label><input type="radio" name="choix" v-model="ObjectifValue" value="viager" @change="updateQuery()" /> Viager </label>
+        </div>
+
         <div class="input">
           <label>Type de bien</label><br>
           <select v-model="CategoryValue" @change="updateQuery()">
@@ -53,34 +60,15 @@
         </vue-google-autocomplete>
         </div>
       </form>
-    
-    <!--  <ApolloQuery :query="query">
-        <template slot-scope="{ result: { loading, error, data } }">
-          <span v-if="loading">Loading...</span>
-          <span v-else-if="error">An error occured</span>
-
-          <div v-if="data">
-            <div class="grid-flex" v-if="data.listPropertys.items.length">
-              <div class="column" v-for="property in data.listPropertys.items" :key="property.id">
-                <Property :property="property"/>
-              </div>
-            </div>
-            <span v-else>empty</span>
-          </div>
-        </template>
-      </ApolloQuery>-->
 
       <div class="grid-flex" >
         <div class="column w-33" v-for="property in properties" :key="property.id">
           <Property :property="property"/>
         </div>
       </div>
-
     </div>
-    
   </div>
 </template>
-
 
 <script>
   import Property from "../components/Property"
@@ -97,11 +85,12 @@
         properties: [],
         loading: 0,
         CategoryValue: 'Tous',
+        ObjectifValue: 'acheter',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
         PriceMinValue: 0,
         PriceMaxValue: 99999999,
-        LocationValue: '',
+        LocationValue: 'Belgique',
         PriceRange: {
           "10000":"10000",
           "50000":"50000",
@@ -168,6 +157,9 @@
             "category": {
               "contains": this.CategoryValue
             },
+            "objectif": {
+              "contains": this.ObjectifValue
+            },
             "location": {
               "contains": this.LocationValue
             },
@@ -182,21 +174,17 @@
           }
         })
       },
-      /**
-      * When the location found
-      * @param {Object} addressData Data of the found location
-      * @param {Object} placeResultData PlaceResult object
-      * @param {String} id Input container ID
-      */
       getAddressData: function (addressData, placeResultData, id) {
-          this.address = addressData;
-          this.LocationValue = this.address.locality;
+        this.address = addressData;
+        this.LocationValue = this.address.locality;
       }
     }
   }
 </script>
 
 <style lang="scss">
-
+  .input {
+    margin-top: 20px;
+  }
 </style>
 

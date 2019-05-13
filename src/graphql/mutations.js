@@ -14,6 +14,9 @@ export const createProperty = `mutation CreateProperty($input: CreatePropertyInp
     rooms
     garages
     parkings
+    location
+    exact_location
+    objectif
   }
 }
 `;
@@ -30,6 +33,9 @@ export const updateProperty = `mutation UpdateProperty($input: UpdatePropertyInp
     rooms
     garages
     parkings
+    location
+    exact_location
+    objectif
   }
 }
 `;
@@ -46,6 +52,9 @@ export const deleteProperty = `mutation DeleteProperty($input: DeletePropertyInp
     rooms
     garages
     parkings
+    location
+    exact_location
+    objectif
   }
 }
 `;

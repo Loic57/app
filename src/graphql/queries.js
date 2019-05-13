@@ -2,6 +2,7 @@
 // this is an auto generated file. This will be overwritten
 import gql from 'graphql-tag'
 
+
 export const getProperty = gql`query GetProperty($id: ID!) {
   getProperty(id: $id) {
     id
@@ -17,6 +18,7 @@ export const getProperty = gql`query GetProperty($id: ID!) {
     parkings
     location
     exact_location
+    objectif
   }
 }
 `;
@@ -40,6 +42,7 @@ export const listPropertys = gql`query ListPropertys(
       parkings
       location
       exact_location
+      objectif
     }
     nextToken
   }
