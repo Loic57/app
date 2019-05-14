@@ -9,10 +9,10 @@ const awsmobile = {
     "aws_content_delivery_bucket": "app-20190510104907-hostingbucket-dev",
     "aws_content_delivery_bucket_region": "eu-west-2",
     "aws_content_delivery_url": "http://app-20190510104907-hostingbucket-dev.s3-website.eu-west-2.amazonaws.com",
-    "aws_cognito_identity_pool_id": "eu-west-2:24b471b0-e1b8-4460-bc36-14bb09a21872",
+    "aws_cognito_identity_pool_id": "eu-west-2:14c42385-1f47-431e-bf8e-60aa173988fc",
     "aws_cognito_region": "eu-west-2",
-    "aws_user_pools_id": "eu-west-2_PcaksSqf8",
-    "aws_user_pools_web_client_id": "77nuo3vh9vm100e7mpk2nfaer0",
+    "aws_user_pools_id": "eu-west-2_kZ3pAhTN1",
+    "aws_user_pools_web_client_id": "2pdb97336npb7n171ff3s53mbd",
     "oauth": {},
     "aws_user_files_s3_bucket": "app4fd3bd165a5f4b1e8fb0c79f167a6567-dev",
     "aws_user_files_s3_bucket_region": "eu-west-2"

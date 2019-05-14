@@ -9,6 +9,11 @@
             "UnauthRoleName": "app-dev-20190510104637-unauthRole",
             "StackName": "app-dev-20190510104637",
             "StackId": "arn:aws:cloudformation:eu-west-2:196383448089:stack/app-dev-20190510104637/21619bb0-7300-11e9-bac8-0aa9634c03a6"
+        },
+        "categories": {
+            "auth": {
+                "cognito07541cf4": {}
+            }
         }
     }
 }

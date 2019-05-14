@@ -30,7 +30,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/api/cloudformation-template.json",
 				"logicalId": "apigraphql"
 			},
-			"lastPushTimeStamp": "2019-05-14T13:38:51.165Z",
+			"lastPushTimeStamp": "2019-05-14T13:45:06.481Z",
 			"lastPushDirHash": "5tzbDoIFiRQItuKMAzp4o3HAMvE="
 		}
 	},
@@ -42,7 +42,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/hosting/template.json",
 				"logicalId": "hostingS3AndCloudFront"
 			},
-			"lastPushTimeStamp": "2019-05-14T13:38:51.171Z",
+			"lastPushTimeStamp": "2019-05-14T13:45:06.492Z",
 			"output": {
 				"S3BucketSecureURL": "https://app-20190510104907-hostingbucket-dev.s3.amazonaws.com",
 				"WebsiteURL": "http://app-20190510104907-hostingbucket-dev.s3-website.eu-west-2.amazonaws.com",
@@ -52,7 +52,27 @@
 			"lastPushDirHash": "U4c6kdtCW0Tx1b73kEdPHOL6hOE="
 		}
 	},
-	"auth": {},
+	"auth": {
+		"cognito07541cf4": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/auth/cognito07541cf4-cloudformation-template.yml",
+				"logicalId": "authcognito07541cf4"
+			},
+			"lastPushTimeStamp": "2019-05-14T13:45:06.502Z",
+			"output": {
+				"AppClientSecret": "13k9q75mgbm4hsi2vbq4rp4dh7h7vbcnvh3s7rt94ojdh5r080rj",
+				"UserPoolId": "eu-west-2_kZ3pAhTN1",
+				"AppClientIDWeb": "2pdb97336npb7n171ff3s53mbd",
+				"AppClientID": "6sq3d14g3dkummmgauh8du02e1",
+				"IdentityPoolId": "eu-west-2:14c42385-1f47-431e-bf8e-60aa173988fc",
+				"IdentityPoolName": "cognito07541cf4_identitypool_07541cf4__dev",
+				"UserPoolName": "cognito07541cf4_userpool_07541cf4"
+			},
+			"lastPushDirHash": "ZXTBT811DHP78ToiO/teSQv7In8="
+		}
+	},
 	"storage": {
 		"s3d8a5964d": {
 			"service": "S3",
@@ -61,7 +81,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/app-dev-20190510104637-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
 				"logicalId": "storages3d8a5964d"
 			},
-			"lastPushTimeStamp": "2019-05-14T13:38:51.183Z",
+			"lastPushTimeStamp": "2019-05-14T13:45:06.499Z",
 			"output": {
 				"BucketName": "app4fd3bd165a5f4b1e8fb0c79f167a6567-dev",
 				"Region": "eu-west-2"
