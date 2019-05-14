@@ -6,16 +6,17 @@
       <form action="">
 
         <div class="input">
-          <label><input type="radio" name="choix" v-model="ObjectifValue" value="acheter" @change="updateQuery()" /> Acheter</label><br>
-          <label><input type="radio" name="choix" v-model="ObjectifValue" value="louer" @change="updateQuery()" /> Louer</label><br>
-          <label><input type="radio" name="choix" v-model="ObjectifValue" value="viager" @change="updateQuery()" /> Viager </label>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="all" @change="updateQuery()" /> Tout </label><br>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="acheter" @change="updateQuery()" /> Acheter</label><br>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="louer" @change="updateQuery()" /> Louer</label><br>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="viager" @change="updateQuery()" /> Viager </label>
         </div>
 
         <div class="input">
           <label>Type de bien</label><br>
           <select v-model="CategoryValue" @change="updateQuery()">
             <option value="" :selected="true">Sélectionner un type de bien</option>
-            <option value="Tous">Tous</option>
+            <option value="all">Tous</option>
             <option value="Maison">Maison</option>
             <option value="Appartement">Appartement</option>
           </select>
@@ -84,13 +85,13 @@
       return {
         properties: [],
         loading: 0,
-        CategoryValue: 'Tous',
-        ObjectifValue: 'acheter',
+        CategoryValue: 'all',
+        StatusValue: 'all',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
         PriceMinValue: 0,
         PriceMaxValue: 99999999,
-        LocationValue: 'Belgique',
+        LocationValue: 'all',
         PriceRange: {
           "10000":"10000",
           "50000":"50000",
@@ -157,8 +158,8 @@
             "category": {
               "contains": this.CategoryValue
             },
-            "objectif": {
-              "contains": this.ObjectifValue
+            "status": {
+              "contains": this.StatusValue
             },
             "location": {
               "contains": this.LocationValue

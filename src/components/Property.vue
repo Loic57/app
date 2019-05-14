@@ -3,11 +3,11 @@
     <div class="box-article__image"><img src="../assets/visual-1.jpg" /></div>
     <div class="box-article__content">
       <p class="content__title">{{property.title}}</p>
-      <p class="content__location">{{property.location[1]}}</p>
+      <p class="content__location">{{property.location[0]}}</p>
 
       <p class="content__price">
         {{property.price}} €
-        <span class="label-status">{{property.objectif}}</span>
+        <span class="label-status">{{this.removeStatusAll()}}</span>
       </p>
 
       <div class="grid-flex">
@@ -26,9 +26,30 @@
 </template>
 
 <script>
+
+
+
+  
+
   export default {
     name: 'test',
-    props: ['property']
+    props: ['property'],
+    data() {
+      return {
+        status: this.statusWithoutAll
+      }
+    },
+    methods: {
+      removeStatusAll() {
+        function remove(array, element) {
+          return array.filter(el => el !== element);
+        }
+
+        const status = this.property.status;
+        const statusWithoutAll = remove(status, "all");
+        return statusWithoutAll.toString();
+      }
+    }
   }
 </script>
 

@@ -6,11 +6,10 @@ type Property @model {
   bedrooms: Int
   bathrooms: Int
   area: Int
-  status: String
+  status: [String]! @index(name: "ByStatus", type: HASH)
   rooms: Int
   garages: Int
   parkings: Int,
   location: [String]!
   exact_location: String
-  objectif: String!
 }
