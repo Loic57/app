@@ -5,7 +5,6 @@
       <li><router-link to="/">Accueil</router-link></li>
       <li><router-link to="/properties">Biens</router-link></li>
       <li><router-link to="/profile">Profile</router-link></li>
-      <li><router-link to="/protected">Protected</router-link></li>
       <li><router-link to="/auth" v-if="!signedIn">Sign Up / Sign In</router-link></li>
       <li><amplify-sign-out v-if="signedIn"></amplify-sign-out></li>
     </ul>

@@ -3,10 +3,9 @@ import VueRouter from 'vue-router'
 import Properties from './pages/Properties.vue'
 import SingleProperty from './pages/SingleProperty.vue'
 import Home from './pages/Home.vue'
-
 import Profile from './components/Profile'
 import Auth from './components/Auth'
-import Protected from './components/Protected'
+import addProperty from './pages/addProperty'
 
 const router = new VueRouter({
   routes: [
@@ -28,13 +27,13 @@ const router = new VueRouter({
       component: Auth 
     },
     { 
-      path: '/protected', 
-      component: Protected, 
+      path: '/profile', 
+      component: Profile, 
       meta: { requiresAuth: true} 
     },
     { 
-      path: '/profile', 
-      component: Profile, 
+      path: '/addProperty', 
+      component: addProperty, 
       meta: { requiresAuth: true} 
     }
   ]
