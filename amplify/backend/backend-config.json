@@ -14,7 +14,12 @@
 			"providerPlugin": "awscloudformation"
 		}
 	},
-	"auth": {},
+	"auth": {
+		"cognito357e595c": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation"
+		}
+	},
 	"storage": {
 		"s3d8a5964d": {
 			"service": "S3",

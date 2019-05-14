@@ -15,7 +15,7 @@
 		}
 	},
 	"auth": {
-		"cognito4b968b7f": {
+		"cognito357e595c": {
 			"service": "Cognito",
 			"providerPlugin": "awscloudformation"
 		}
