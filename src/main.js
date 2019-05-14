@@ -28,7 +28,7 @@ const apolloProvider = new VueApollo({
 
 
 
-//Amplify.configure(awsmobile)
+Amplify.configure(awsmobile)
 Vue.use(AmplifyPlugin, AmplifyModules)
 Vue.use(VueRouter)
 Vue.use(VueApollo)
