@@ -16,7 +16,6 @@ export const onCreateProperty = `subscription OnCreateProperty {
     parkings
     location
     exact_location
-    objectif
   }
 }
 `;
@@ -35,7 +34,6 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     parkings
     location
     exact_location
-    objectif
   }
 }
 `;
@@ -54,7 +52,6 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     parkings
     location
     exact_location
-    objectif
   }
 }
 `;

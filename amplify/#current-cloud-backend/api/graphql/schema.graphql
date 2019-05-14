@@ -6,12 +6,10 @@ type Property @model {
   bedrooms: Int
   bathrooms: Int
   area: Int
-  status: String
+  status: [String]!
   rooms: Int
   garages: Int
   parkings: Int,
   location: [String]!
   exact_location: String
-  objectif: String!
-
 }
