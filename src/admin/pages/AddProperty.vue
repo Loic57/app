@@ -11,7 +11,7 @@
 
       <div class="input">
         <label>Type de bien</label><br>
-        <select v-model="category" required>
+        <select v-model="type" required>
           <option value="" :selected="true">Sélectionner un type de bien</option>
           <option value="Maison">Maison</option>
           <option value="Appartement">Appartement</option>
@@ -30,27 +30,27 @@
 
       <div class="input">
         <label>Pièces</label><br>
-        <input type="text" v-model="rooms" required>
+        <input type="text" v-model="room" required>
       </div>
 
       <div class="input">
         <label>Chambres</label><br>
-        <input type="text" v-model="bedrooms" required>
+        <input type="text" v-model="bedroom" required>
       </div>
 
       <div class="input">
         <label>Salles de bains</label><br>
-        <input type="text" v-model="bathrooms" required>
+        <input type="text" v-model="bathroom" required>
       </div>
 
       <div class="input">
         <label>Parkings</label><br>
-        <input type="text" v-model="parkings" required>
+        <input type="text" v-model="parking" required>
       </div>
 
       <div class="input">
         <label>Garages</label><br>
-        <input type="text" v-model="garages" required>
+        <input type="text" v-model="garage" required>
       </div>
 
       <div class="input">
@@ -66,19 +66,25 @@
           v-model="location"
         >
         </vue-google-autocomplete>
+        {{location}}
       </div>
 
       <div class="input">
         <label>Localisation exacte</label><br>
-        <input type="text" v-model="exact_location">
+        <input type="text" v-model="exact_location" required>
       </div>
 
       <div class="input">
         <label>Titre</label><br>
-        <input type="text" v-model="title">
+        <input type="text" v-model="title" required>
       </div>
 
-      <div class="input"><button type="submit">Ajouter nouveau bien</button></div>
+      <div class="input">
+        <label>Réference</label><br>
+        <input type="text" v-model="reference" required>
+      </div>
+
+      <div class="input"><button type="submit" @click="pushArray()">Ajouter nouveau bien</button></div>
     </form>
   </div>
 </template>
@@ -94,58 +100,71 @@
     },
     data() {
       return {
-        id: '',
-        title: '',
-        category: '',
-        price: null,
-        bedrooms: null,
-        bathrooms: null,
+        id: null,
         area: null,
-        status: '',
-        rooms: null,
-        garages: null,
-        parkings: null,
-        location: '',
         exact_location: '',
+        location: [],
+        price: null,
+        status: [],
+        title: '',
+        bathroom: null,
+        bedroom: null,
+        garage: null,
+        parking: null,
+        reference: null,
+        room: null,
+        type: [],
+        arrayLocation: [],
+        arrayStatus: [],
+        arrayType: []
       }
     },
     methods: {
+
+      pushArray() {
+        this.arrayLocation.push('all', this.location);
+        this.arrayStatus.push('all', this.status);
+        this.arrayType.push('all', this.type);
+      },
       addProperty() {
-        const id = Math.randomInt(100000),
-          title = this.title,
-          category = this.category,
-          status = this.status,
-          location = this.location,
-          exact_location = this.exact_location,
-          price = parseInt(this.price),
-          bedrooms = parseInt(this.bedrooms),
-          bathrooms = parseInt(this.bathrooms),
+
+        const id = parseInt(Math.random() * 100000),
           area = parseInt(this.area),
-          rooms = parseInt(this.rooms),
-          garages = parseInt(this.garages),
-          parkings = parseInt(this.parkings);
+          exact_location = this.exact_location,
+          location = this.arrayLocation,
+          price = parseInt(this.price),
+          status = this.arrayStatus,
+          title = this.title,
+          bathroom = parseInt(this.bathroom),
+          bedroom = parseInt(this.bedroom),
+          garage = parseInt(this.garage),
+          parking = parseInt(this.parking),
+          reference = parseInt(this.reference),
+          room = parseInt(this.room),
+          type = this.arrayType;
 
         this.$apollo.mutate({
           mutation: createProperty,
           variables: {
             input: {
               id,
-              title,
-              category,
-              price,
-              bedrooms,
-              bathrooms,
               area,
-              status,
-              rooms,
-              garages,
-              parkings,
+              exact_location,
               location,
-              exact_location
+              price,
+              status,
+              title,
+              bathroom,
+              bedroom,
+              garage,
+              parking,
+              reference,
+              room,
+              type
             }
           }
         }).then((data) => {
-          this.$router.push({ name: 'IndexPosts' })
+          this.$router.push({ name: 'AdminProperties' })
         }).catch((error) => {
           console.log(error)
         })

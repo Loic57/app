@@ -42,6 +42,7 @@ const router = new VueRouter({
     { 
       path: '/admin/Properties', 
       component: AdminProperties, 
+      name: 'AdminProperties', 
       meta: { requiresAuth: true} 
     }
   ]

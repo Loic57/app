@@ -15,10 +15,10 @@
           <img src="../assets/home.svg" alt="" > <span>{{property.area}}m²</span>
         </div>
         <div class="column info-house">
-          <img src="../assets/plans.svg" alt="" > <span>{{property.rooms}}</span>
+          <img src="../assets/plans.svg" alt="" > <span>{{property.room}}</span>
         </div>
         <div class="column info-house">
-          <img src="../assets/bed.svg" alt="" > <span>{{property.bedrooms}}</span>
+          <img src="../assets/bed.svg" alt="" > <span>{{property.bedroom}}</span>
         </div>
       </div>
     </div>

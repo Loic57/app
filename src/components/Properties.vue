@@ -14,7 +14,7 @@
 
         <div class="input">
           <label>Type de bien</label><br>
-          <select v-model="CategoryValue" @change="updateQuery()">
+          <select v-model="TypeValue" @change="updateQuery()">
             <option value="" :selected="true">Sélectionner un type de bien</option>
             <option value="all">Tous</option>
             <option value="Maison">Maison</option>
@@ -85,7 +85,7 @@
       return {
         properties: [],
         loading: 0,
-        CategoryValue: 'all',
+        TypeValue: 'all',
         StatusValue: 'all',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
@@ -155,8 +155,8 @@
       updateQuery() {
         this.$apollo.queries.properties.refetch({
           "filter": {
-            "category": {
-              "contains": this.CategoryValue
+            "type": {
+              "contains": this.TypeValue
             },
             "status": {
               "contains": this.StatusValue
