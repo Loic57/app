@@ -27,7 +27,7 @@
         const { username, password } = this.form
         await Auth.signIn(username, password)
         AmplifyEventBus.$emit('authState', 'signedIn')
-        this.$router.push('/profile')
+        this.$router.push('/admin/profile')
       }
     }
   }

@@ -3,9 +3,12 @@ import VueRouter from 'vue-router'
 import Properties from './pages/Properties.vue'
 import SingleProperty from './pages/SingleProperty.vue'
 import Home from './pages/Home.vue'
-import Profile from './components/Profile'
-import Auth from './components/Auth'
-import addProperty from './pages/addProperty'
+
+
+import Profile from './admin/components/Profile'
+import Auth from './admin/components/Auth'
+import AddProperty from './admin/pages/AddProperty'
+import AdminProperties from './admin/pages/Properties'
 
 const router = new VueRouter({
   routes: [
@@ -27,13 +30,18 @@ const router = new VueRouter({
       component: Auth 
     },
     { 
-      path: '/profile', 
+      path: '/admin/profile', 
       component: Profile, 
       meta: { requiresAuth: true} 
     },
     { 
-      path: '/addProperty', 
-      component: addProperty, 
+      path: '/admin/AddProperty', 
+      component: AddProperty, 
+      meta: { requiresAuth: true} 
+    },
+    { 
+      path: '/admin/Properties', 
+      component: AdminProperties, 
       meta: { requiresAuth: true} 
     }
   ]

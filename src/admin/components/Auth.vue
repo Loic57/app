@@ -19,12 +19,12 @@
     name: 'app',
     data() {
       return {
-        formState: 'signUp'
+        formState: 'signIn'
       }
     },
     methods: {
       toggle() {
-        this.formState === 'signUp' ? this.formState = 'signIn' : this.formState = 'signUp'
+        this.formState === 'signUp' ? this.formState = 'signIn' : this.formState = 'signIn'
       }
     },
     components: {

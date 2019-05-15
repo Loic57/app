@@ -1,15 +1,16 @@
 type Property @model {
   id: ID!
-  title: String!
-  category: [String]
-  price: Float!
-  bedrooms: Int
-  bathrooms: Int
-  area: Int
-  status: [String]!
-  rooms: Int
-  garages: Int
-  parkings: Int,
-  location: [String]!
+  area: Int!
   exact_location: String
+  location: [String]!
+  price: Float!
+  status: [String]!
+  title: String!
+  bathroom: Int
+  bedroom: Int
+  garage: Int
+  parking: Int
+  reference: String!
+  room: Int
+  type: [String]
 }
