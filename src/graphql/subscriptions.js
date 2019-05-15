@@ -4,54 +4,57 @@
 export const onCreateProperty = `subscription OnCreateProperty {
   onCreateProperty {
     id
-    title
-    category
-    price
-    bedrooms
-    bathrooms
     area
-    status
-    rooms
-    garages
-    parkings
-    location
     exact_location
+    location
+    price
+    status
+    title
+    bathroom
+    bedroom
+    garage
+    parking
+    reference
+    room
+    type
   }
 }
 `;
 export const onUpdateProperty = `subscription OnUpdateProperty {
   onUpdateProperty {
     id
-    title
-    category
-    price
-    bedrooms
-    bathrooms
     area
-    status
-    rooms
-    garages
-    parkings
-    location
     exact_location
+    location
+    price
+    status
+    title
+    bathroom
+    bedroom
+    garage
+    parking
+    reference
+    room
+    type
   }
 }
 `;
 export const onDeleteProperty = `subscription OnDeleteProperty {
   onDeleteProperty {
     id
-    title
-    category
-    price
-    bedrooms
-    bathrooms
     area
-    status
-    rooms
-    garages
-    parkings
-    location
     exact_location
+    location
+    price
+    status
+    title
+    bathroom
+    bedroom
+    garage
+    parking
+    reference
+    room
+    type
   }
 }
 `;

@@ -1,28 +1,26 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 
-
-import gql from 'graphql-tag'
-
-export const getProperty = gql`query GetProperty($id: ID!) {
+export const getProperty = `query GetProperty($id: ID!) {
   getProperty(id: $id) {
     id
-    title
-    category
-    price
-    bedrooms
-    bathrooms
     area
-    status
-    rooms
-    garages
-    parkings
-    location
     exact_location
+    location
+    price
+    status
+    title
+    bathroom
+    bedroom
+    garage
+    parking
+    reference
+    room
+    type
   }
 }
 `;
-export const listPropertys = gql`query ListPropertys(
+export const listPropertys = `query ListPropertys(
   $filter: ModelPropertyFilterInput
   $limit: Int
   $nextToken: String
@@ -30,18 +28,19 @@ export const listPropertys = gql`query ListPropertys(
   listPropertys(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
-      title
-      category
-      price
-      bedrooms
-      bathrooms
       area
-      status
-      rooms
-      garages
-      parkings
-      location
       exact_location
+      location
+      price
+      status
+      title
+      bathroom
+      bedroom
+      garage
+      parking
+      reference
+      room
+      type
     }
     nextToken
   }
