@@ -4,7 +4,7 @@
     <ul class="nav-primary">
       <li><router-link to="/">Accueil</router-link></li>
       <li><router-link to="/properties" v-if="!signedIn">Biens</router-link></li>
-      <li><router-link to="/admin/biens" v-if="signedIn">Biens</router-link></li>
+      <li><router-link to="/admin/properties" v-if="signedIn">Biens</router-link></li>
       <li><router-link to="/admin/profile">Profile</router-link></li>
       <li><router-link to="/auth" v-if="!signedIn">Connexion</router-link></li>
       <li><amplify-sign-out v-if="signedIn"></amplify-sign-out></li>

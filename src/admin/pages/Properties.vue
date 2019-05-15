@@ -3,68 +3,11 @@
     <div class="container">
       <h1>Biens immobiliers</h1>
       <h4 v-if="loading">Loading...</h4>
-      <form action="">
-
-        <div class="input">
-          <label><input type="radio" name="choix" v-model="StatusValue" value="all" @change="updateQuery()" /> Tout </label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="acheter" @change="updateQuery()" /> Acheter</label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="louer" @change="updateQuery()" /> Louer</label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="viager" @change="updateQuery()" /> Viager </label>
-        </div>
-
-        <div class="input">
-          <label>Type de bien</label><br>
-          <select v-model="CategoryValue" @change="updateQuery()">
-            <option value="" :selected="true">Sélectionner un type de bien</option>
-            <option value="all">Tous</option>
-            <option value="Maison">Maison</option>
-            <option value="Appartement">Appartement</option>
-          </select>
-        </div>
-
-        <div class="input">
-          <label>Surface en m²</label><br>
-          <select v-model="AreaMinValue" @change="updateQuery()">
-            <option :selected="true">Min</option>
-            <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
-          </select>
-          <select v-model="AreaMaxValue" @change="updateQuery()">
-            <option :selected="true">Max</option>
-            <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
-          </select>
-        </div>
-
-        <div class="input">
-          <label>Prix</label><br>
-          <select v-model="PriceMinValue" id="PriceMin" @change="updateQuery()">
-            <option value="" :selected="true">Min</option>
-            <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
-          </select>
-          <select v-model="PriceMaxValue" id="PriceMax" @change="updateQuery()">
-            <option value="" :selected="true">Max</option>
-            <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
-          </select>
-        </div>
-
-        <div class="input">
-          <vue-google-autocomplete
-            ref="address"
-            id="map"
-            classname="form-control"
-            placeholder="Start typing"
-            v-on:placechanged="getAddressData"
-            types="(cities)"
-            country="be"
-            v-model="LocationValue"
-            @change="updateQuery()"
-        >
-        </vue-google-autocomplete>
-        </div>
-      </form>
-
+     
+      <div class="mt-3" v-if="propertyCreated">L'article a bien été posté.</div>
       <div class="grid-flex" >
-        <div class="column w-33" v-for="property in properties" :key="property.id">
-          <Property :property="property"/>
+        <div class="column w-100" v-for="property in properties" :key="property.id">
+          <PropertyRow :property="property"/>
         </div>
       </div>
     </div>
@@ -72,20 +15,20 @@
 </template>
 
 <script>
-  import Property from "../components/Property"
+  import PropertyRow from "../components/PropertyRow"
   import { listPropertys } from '../../graphql/queries';
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
 
   export default {
     components: {
-      Property,
+      PropertyRow,
       VueGoogleAutocomplete
     },
     data() {
       return {
         properties: [],
         loading: 0,
-        CategoryValue: 'all',
+        TypeValue: 'all',
         StatusValue: 'all',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
@@ -135,7 +78,8 @@
           "180":"180",
           "190":"190",
           "200":"200"
-        }
+        },
+        propertyCreated: this.$route.params.propertyCreated
       }
     },
     apollo: { 
@@ -147,16 +91,17 @@
       }
     },
     mounted() {
-      // To demonstrate functionality of exposed component functions
-      // Here we make focus on the user input
-      this.$refs.address.focus();
+      setTimeout(() => {
+        if(this.propertyCreated)
+          this.propertyCreated = false;
+      }, 4000)
     },
     methods: {
       updateQuery() {
         this.$apollo.queries.properties.refetch({
           "filter": {
-            "category": {
-              "contains": this.CategoryValue
+            "type": {
+              "contains": this.TypeValue
             },
             "status": {
               "contains": this.StatusValue

@@ -3,10 +3,11 @@
     <div class="box-article__image"><img src="../../assets/visual-1.jpg" /></div>
     <div class="box-article__content">
       <p class="content__title">{{property.title}}</p>
-      <p class="content__location">{{property.location[0]}}</p>
+      <p class="content__location">{{property.location[1]}}</p>
 
       <p class="content__price">
-        {{property.price}} €
+        <span v-if="this.removeStatusAll() === 'louer'"> {{property.price}} € / mois</span>
+        <span v-if="this.removeStatusAll() === 'acheter'"> {{property.price}} €</span>
         <span class="label-status">{{this.removeStatusAll()}}</span>
       </p>
 

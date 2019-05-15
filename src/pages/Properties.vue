@@ -155,7 +155,7 @@
       updateQuery() {
         this.$apollo.queries.properties.refetch({
           "filter": {
-            "category": {
+            "type": {
               "contains": this.TypeValue
             },
             "status": {

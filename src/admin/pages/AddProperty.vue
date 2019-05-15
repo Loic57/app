@@ -164,7 +164,7 @@
             }
           }
         }).then((data) => {
-          this.$router.push({ name: 'AdminProperties' })
+          this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} })
         }).catch((error) => {
           console.log(error)
         })
