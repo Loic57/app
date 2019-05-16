@@ -2,6 +2,7 @@
 // this is an auto generated file. This will be overwritten
 import gql from 'graphql-tag'
 
+
 export const createProperty = gql`mutation CreateProperty($input: CreatePropertyInput!) {
   createProperty(input: $input) {
     id
@@ -18,6 +19,7 @@ export const createProperty = gql`mutation CreateProperty($input: CreateProperty
     reference
     room
     type
+    creation_date
   }
 }
 `;
@@ -37,6 +39,7 @@ export const updateProperty = gql`mutation UpdateProperty($input: UpdateProperty
     reference
     room
     type
+    creation_date
   }
 }
 `;
@@ -56,6 +59,7 @@ export const deleteProperty = gql`mutation DeleteProperty($input: DeleteProperty
     reference
     room
     type
+    creation_date
   }
 }
 `;

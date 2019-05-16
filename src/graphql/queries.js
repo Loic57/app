@@ -1,8 +1,6 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 import gql from 'graphql-tag'
-
-
 export const getProperty = gql`query GetProperty($id: ID!) {
   getProperty(id: $id) {
     id
@@ -19,6 +17,7 @@ export const getProperty = gql`query GetProperty($id: ID!) {
     reference
     room
     type
+    creation_date
   }
 }
 `;
@@ -43,6 +42,7 @@ export const listPropertys = gql`query ListPropertys(
       reference
       room
       type
+      creation_date
     }
     nextToken
   }

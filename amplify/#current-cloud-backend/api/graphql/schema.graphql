@@ -13,4 +13,5 @@ type Property @model {
   reference: String!
   room: Int
   type: [String]
+  creation_date: String!
 }

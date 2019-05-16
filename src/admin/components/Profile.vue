@@ -3,7 +3,7 @@
     <h1>Welcome, {{user.attributes.email}}</h1>
 
     <router-link to="/admin/addProperty">Ajouter un bien immobilier</router-link><br>
-    <router-link to="/admin/addProperty">Modifier un bien immobilier</router-link>
+    <router-link to="/admin/properties">Modifier un bien immobilier</router-link>
   </div>
 </template>
 

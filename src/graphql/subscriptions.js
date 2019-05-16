@@ -17,6 +17,7 @@ export const onCreateProperty = `subscription OnCreateProperty {
     reference
     room
     type
+    creation_date
   }
 }
 `;
@@ -36,6 +37,7 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     reference
     room
     type
+    creation_date
   }
 }
 `;
@@ -55,6 +57,7 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     reference
     room
     type
+    creation_date
   }
 }
 `;

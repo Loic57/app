@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Ajouter un bien immobilier</h1>
+    <h1>Editer le bien  {{property.reference}}</h1> 
 
     <form @submit.prevent="addProperty">
       <div class="input">
@@ -103,12 +103,14 @@
   var currentDate = date + 'T' + time;
 
   export default {
-    name: 'addProperty',
+    name: 'EditProperty',
+    props: ['property'],
     components: {
       VueGoogleAutocomplete
     },
     data() {
       return {
+        property: property,
         id: parseInt(Math.random() * 1000000),
         area: null,
         exact_location: '',

@@ -8,6 +8,7 @@ import Home from './pages/Home.vue'
 import Profile from './admin/components/Profile'
 import Auth from './admin/components/Auth'
 import AddProperty from './admin/pages/AddProperty'
+import EditProperty from './admin/pages/EditProperty'
 import AdminProperties from './admin/pages/Properties'
 
 const router = new VueRouter({
@@ -37,6 +38,12 @@ const router = new VueRouter({
     { 
       path: '/admin/AddProperty', 
       component: AddProperty, 
+      meta: { requiresAuth: true} 
+    },
+    { 
+      path: '/admin/EditProperty/:id', 
+      name: 'EditProperty',
+      component: EditProperty, 
       meta: { requiresAuth: true} 
     },
     { 

@@ -23,9 +23,9 @@
         </div>
       </div>
 
-      <div class="content__buttons">
-        <router-link to=""><span class="btn">delete</span></router-link>
-        <router-link to=""><span class="btn">edit</span></router-link>
+      <div class="content__buttons"> 
+        <router-link to="/"><span class="btn">delete</span></router-link>
+        <router-link :to="{ name: 'EditProperty', params: { id: property.id, property: property }}"><span class="btn">edit</span></router-link>
       </div>
 
     </div>

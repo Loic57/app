@@ -27,11 +27,6 @@
 </template>
 
 <script>
-
-
-
-  
-
   export default {
     name: 'test',
     props: ['property'],
