@@ -43,8 +43,8 @@ const router = new VueRouter({
     { 
       path: '/admin/EditProperty/:id', 
       name: 'EditProperty',
-      component: EditProperty, 
-      meta: { requiresAuth: true} 
+      component: EditProperty,
+      meta: { requiresAuth: true}
     },
     { 
       path: '/admin/properties', 

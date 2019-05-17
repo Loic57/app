@@ -1,56 +1,57 @@
 <template>
   <div class="container">
-    <h1>Editer le bien  {{property.reference}}</h1> 
+    <h1>Editer le bien  {{property.reference}} </h1> 
 
-    <form @submit.prevent="addProperty">
+    <form @submit.prevent="editProperty">
+
       <div class="input">
-        <label><input type="radio" name="choix" v-model="status" value="acheter" selected="selected"/> Acheter</label><br>
-        <label><input type="radio" name="choix" v-model="status" value="louer" /> Louer</label><br>
-        <label><input type="radio" name="choix" v-model="status" value="viager" /> Viager </label>
+        <label><input type="radio" name="choix" value="acheter" :checked="property.status[1] === 'acheter'"/> Acheter</label><br>
+        <label><input type="radio" name="choix" value="louer" :checked="property.status[1] === 'louer'"/> Louer</label><br>
+        <label><input type="radio" name="choix" value="viager" :checked="property.status[1] === 'viager'"/> Viager</label><br>
       </div>
 
       <div class="input">
         <label>Type de bien</label><br>
-        <select v-model="type" required>
-          <option value="" :selected="true">Sélectionner un type de bien</option>
-          <option value="Maison">Maison</option>
-          <option value="Appartement">Appartement</option>
+        <select required>
+          <option value="">Sélectionner un type de bien</option>
+          <option value="Maison" :selected="property.type[1] === 'Maison'">Maison</option>
+          <option value="Appartement" :selected="property.type[1] === 'appartement'">Appartement</option>
         </select>
       </div>
 
       <div class="input">
         <label>Surface en m²</label><br>
-        <input type="text" v-model="area" required>
+        <input type="text" v-model="property.area" required>
       </div>
 
       <div class="input">
         <label>Prix</label><br>
-        <input type="text" v-model="price" required>
+        <input type="text" v-model="property.price" required>
       </div>
 
       <div class="input">
         <label>Pièces</label><br>
-        <input type="text" v-model="room" required>
+        <input type="text" v-model="property.room" required>
       </div>
 
       <div class="input">
         <label>Chambres</label><br>
-        <input type="text" v-model="bedroom" required>
+        <input type="text" v-model="property.bedroom" required>
       </div>
 
       <div class="input">
         <label>Salles de bains</label><br>
-        <input type="text" v-model="bathroom" required>
+        <input type="text" v-model="property.bathroom" required>
       </div>
 
       <div class="input">
         <label>Parkings</label><br>
-        <input type="text" v-model="parking" required>
+        <input type="text" v-model="property.parking" required>
       </div>
 
       <div class="input">
         <label>Garages</label><br>
-        <input type="text" v-model="garage" required>
+        <input type="text" v-model="property.garage" required>
       </div>
 
       <div class="input">
@@ -63,80 +64,52 @@
           v-on:placechanged="getAddressData"
           types="(cities)"
           country="be"
-          v-model="location"
+          v-model="property.location[1]"
         >
         </vue-google-autocomplete>
-        {{location}}
+        {{property.location}}
       </div>
 
       <div class="input">
         <label>Localisation exacte</label><br>
-        <input type="text" v-model="exact_location" required>
+        <input type="text" v-model="property.exact_location" required>
       </div>
 
       <div class="input">
         <label>Titre</label><br>
-        <input type="text" v-model="title" required>
+        <input type="text" v-model="property.title" required>
       </div>
 
       <div class="input">
         <label>Réference</label><br>
-        <input type="text" v-model="reference" required>
+        <input type="text" v-model="property.reference" required>
       </div>
 
-      <input type="hidden" v-model="id">
-      <input type="hidden" v-model="creation_date">
+      <input type="hidden" v-model="property.id">
+      <input type="hidden" v-model="property.creation_date">
 
-      <div class="input"><button type="submit">Ajouter nouveau bien</button></div>
+      <div class="input"><button type="submit">Editer bien</button></div>
     </form>
   </div>
 </template>
 
 <script>
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
-  import { createProperty } from '../../graphql/mutations';
+  import { updateProperty } from '../../graphql/mutations';
   import { listPropertys } from '../../graphql/queries';
-
-  var today = new Date();
-  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-  var currentDate = date + 'T' + time;
 
   export default {
     name: 'EditProperty',
-    props: ['property'],
     components: {
       VueGoogleAutocomplete
     },
     data() {
       return {
-        property: property,
-        id: parseInt(Math.random() * 1000000),
-        area: null,
-        exact_location: '',
-        location: [],
-        price: null,
-        status: [],
-        title: '',
-        bathroom: null,
-        bedroom: null,
-        garage: null,
-        parking: null,
-        reference: '',
-        room: null,
-        type: [],
-        arrayLocation: [],
-        arrayStatus: [],
-        arrayType: [],
-        creation_date: currentDate
+        property: this.$route.params.property
       }
     },
     methods: {
-      addProperty() {
-
-        this.arrayLocation.push('all', this.location);
-        this.arrayStatus.push('all', this.status);
-        this.arrayType.push('all', this.type);
+       editProperty() {
 
 
         const id = parseInt(Math.random() * 100000),
