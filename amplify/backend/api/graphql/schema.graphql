@@ -4,7 +4,7 @@ type Property @model {
   exact_location: String
   location: String
   price: Float!
-  status: [String]!
+  status: String
   title: String!
   bathroom: Int
   bedroom: Int
@@ -12,6 +12,6 @@ type Property @model {
   parking: Int
   reference: String!
   room: Int
-  type: [String]
+  type: String
   creation_date: String!
 }
