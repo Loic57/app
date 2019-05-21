@@ -3,7 +3,7 @@
     <div class="container">
       <h1>Biens immobiliers</h1>
       <h4 v-if="loading">Loading...</h4>
-      <form action="">
+      <form v-on:submit.prevent>
 
         <div class="input">
           <label><input type="radio" name="choix" v-model="StatusValue" value="all" @change="updateQuery()" /> Tout </label><br>
@@ -25,11 +25,11 @@
         <div class="input">
           <label>Surface en m²</label><br>
           <select v-model="AreaMinValue" @change="updateQuery()">
-            <option :selected="true">Min</option>
+            <option :selected="true" disabled>Min</option>
             <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
           </select>
           <select v-model="AreaMaxValue" @change="updateQuery()">
-            <option :selected="true">Max</option>
+            <option :selected="true" disabled>Max</option>
             <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
           </select>
         </div>
@@ -59,6 +59,7 @@
             @change="updateQuery()"
         >
         </vue-google-autocomplete>
+        {{LocationValue}}
         </div>
       </form>
 
@@ -85,8 +86,8 @@
       return {
         properties: [],
         loading: 0,
-        TypeValue: 'all',
-        StatusValue: 'all',
+        TypeValue: '',
+        StatusValue: '',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
         PriceMinValue: 0,
@@ -153,27 +154,154 @@
     },
     methods: {
       updateQuery() {
-        this.$apollo.queries.properties.refetch({
-          "filter": {
-            "type": {
-              "contains": this.TypeValue
-            },
-            "status": {
-              "contains": this.StatusValue
-            },
-            "location": {
-              "contains": this.LocationValue
-            },
-            "area": {
-              "ge": this.AreaMinValue, 
-              "le": this.AreaMaxValue
-            },
-            "price": {
-              "ge": this.PriceMinValue, 
-              "le": this.PriceMaxValue
+        if(this.TypeValue == "" && this.StatusValue == "" && this.LocationValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
             }
-          }
-        })
+          })
+        }
+        else if(this.TypeValue == "" && this.StatusValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "location": {
+                "contains": this.LocationValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
+        else if(this.TypeValue == "" && this.LocationValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "status": {
+                "contains": this.StatusValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
+        else if(this.StatusValue == "" && this.LocationValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "type": {
+                "contains": this.TypeValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
+        else if(this.TypeValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "location": {
+                "contains": this.LocationValue
+              },
+              "status": {
+                "contains": this.StatusValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
+        else if(this.LocationValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "status": {
+                "contains": this.StatusValue
+              },
+              "type": {
+                "contains": this.TypeValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
+        else if(this.StatusValue == "") {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "location": {
+                "contains": this.LocationValue
+              },
+              "type": {
+                "contains": this.TypeValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
+        else {
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "type": {
+                "contains": this.TypeValue
+              },
+              "status": {
+                "contains": this.StatusValue
+              },
+              "location": {
+                "contains": this.LocationValue
+              },
+              "area": {
+                "ge": this.AreaMinValue, 
+                "le": this.AreaMaxValue
+              },
+              "price": {
+                "ge": this.PriceMinValue, 
+                "le": this.PriceMaxValue
+              }
+            }
+          })
+        }
       },
       getAddressData: function (addressData, placeResultData, id) {
         this.address = addressData;

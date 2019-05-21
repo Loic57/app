@@ -6,9 +6,9 @@
       <p class="content__location">{{property.location}}</p>
 
       <p class="content__price">
-        <span v-if="this.removeStatusAll() === 'louer'"> {{property.price}} € / mois</span>
-        <span v-if="this.removeStatusAll() === 'acheter'"> {{property.price}} €</span>
-        <span class="label-status">{{this.removeStatusAll()}}</span>
+        <span v-if="property.status === 'louer'"> {{property.price}} € / mois</span>
+        <span v-if="property.status === 'acheter'"> {{property.price}} €</span>
+        <span class="label-status">{{property.status}}</span>
       </p>
 
       <div class="grid-flex">
