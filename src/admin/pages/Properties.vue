@@ -4,7 +4,8 @@
       <h1>Biens immobiliers</h1>
       <h4 v-if="loading">Loading...</h4>
      
-      <div class="mt-3" v-if="propertyCreated">L'article a bien été posté.</div>
+      <div class="mt-3" v-if="propertyCreated">Le bien immobilier a bien été créé.</div>
+      <div class="mt-3" v-if="propertyUpdated">Le bien immobilier a bien été mis à jour.</div>
       <div class="grid-flex" >
         <div class="column w-100" v-for="property in properties" :key="property.id">
           <PropertyRow :property="property"/>
@@ -79,7 +80,8 @@
           "190":"190",
           "200":"200"
         },
-        propertyCreated: this.$route.params.propertyCreated
+        propertyCreated: this.$route.params.propertyCreated,
+        propertyUpdated: this.$route.params.propertyUpdated,
       }
     },
     apollo: { 
@@ -92,8 +94,9 @@
     },
     mounted() {
       setTimeout(() => {
-        if(this.propertyCreated)
+        if(this.propertyCreated || this.propertyUpdated)
           this.propertyCreated = false;
+          this.propertyUpdated = false;
       }, 4000)
     },
     methods: {

@@ -2,7 +2,7 @@ type Property @model {
   id: ID!
   area: Int!
   exact_location: String
-  location: [String]!
+  location: String
   price: Float!
   status: [String]!
   title: String!

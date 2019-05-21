@@ -3,19 +3,19 @@
     <h1>Editer le bien  {{property.reference}} </h1> 
 
     <form @submit.prevent="editProperty">
-
+      <!-- :checked="property.status[1] === 'viager'" -->
       <div class="input">
-        <label><input type="radio" name="choix" value="acheter" :checked="property.status[1] === 'acheter'"/> Acheter</label><br>
-        <label><input type="radio" name="choix" value="louer" :checked="property.status[1] === 'louer'"/> Louer</label><br>
-        <label><input type="radio" name="choix" value="viager" :checked="property.status[1] === 'viager'"/> Viager</label><br>
+        <label><input type="radio" v-model="property.status" name="choix" value="acheter" /> Acheter</label><br>
+        <label><input type="radio" v-model="property.status" name="choix" value="louer" /> Louer</label><br>
+        <label><input type="radio" v-model="property.status" name="choix" value="viager" /> Viager</label><br>
       </div>
 
       <div class="input">
         <label>Type de bien</label><br>
-        <select required>
+        <select required v-model="property.type">
           <option value="">Sélectionner un type de bien</option>
-          <option value="Maison" :selected="property.type[1] === 'Maison'">Maison</option>
-          <option value="Appartement" :selected="property.type[1] === 'appartement'">Appartement</option>
+          <option value="Maison">Maison</option>
+          <option value="Appartement">Appartement</option>
         </select>
       </div>
 
@@ -64,7 +64,7 @@
           v-on:placechanged="getAddressData"
           types="(cities)"
           country="be"
-          v-model="property.location[1]"
+          v-model="property.location"
         >
         </vue-google-autocomplete>
         {{property.location}}
@@ -96,8 +96,7 @@
 <script>
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
   import { updateProperty } from '../../graphql/mutations';
-  import { listPropertys } from '../../graphql/queries';
-
+  
   export default {
     name: 'EditProperty',
     components: {
@@ -105,33 +104,37 @@
     },
     data() {
       return {
-        property: this.$route.params.property
+        property: this.$route.params.property,
+        arrayStatus: [],
+        arrayType: [],
+        arrayLocation: []
       }
     },
     methods: {
        editProperty() {
+        this.arrayStatus.push('all', this.property.status);
+        this.arrayType.push('all', this.property.type);
 
+        console.log(this.property.location[1]);
 
-        const id = parseInt(Math.random() * 100000),
-          area = parseInt(this.area),
-          exact_location = this.exact_location,
-          location = this.arrayLocation,
-          price = parseInt(this.price),
+        const id = this.property.id,
+          area = this.property.area,
+          exact_location = this.property.exact_location,
+          location = this.property.location,
+          price = this.property.price,
           status = this.arrayStatus,
-          title = this.title,
-          bathroom = parseInt(this.bathroom),
-          bedroom = parseInt(this.bedroom),
-          garage = parseInt(this.garage),
-          parking = parseInt(this.parking),
-          reference = this.reference,
-          room = parseInt(this.room),
+          title = this.property.title,
+          bathroom = this.property.bathroom,
+          bedroom = this.property.bedroom,
+          garage = this.property.garage,
+          parking = this.property.parking,
+          reference = this.property.reference,
+          room = this.property.room,
           type = this.arrayType,
-          creation_date = this.creation_date;
-
-          
+          creation_date = this.property.creation_date;
 
         this.$apollo.mutate({
-          mutation: createProperty,
+          mutation: updateProperty,
           variables: {
             input: {
               id,
@@ -150,18 +153,9 @@
               type,
               creation_date
             }
-          },
-          update: (store, { data: { createProperty } }) => {
-            const data = store.readQuery({
-              query: listPropertys
-            })
-
-            data.listPropertys.items.push(createProperty)
-
-            store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
-          this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} })
+          this.$router.push({ name: 'AdminProperties', params: {propertyUpdated: true} })
         }).catch((error) => {
           console.log(error)
         })

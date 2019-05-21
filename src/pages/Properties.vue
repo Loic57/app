@@ -91,7 +91,7 @@
         AreaMaxValue: 999999,
         PriceMinValue: 0,
         PriceMaxValue: 99999999,
-        LocationValue: 'all',
+        LocationValue: '',
         PriceRange: {
           "10000":"10000",
           "50000":"50000",

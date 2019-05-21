@@ -2,7 +2,7 @@
   <div class="row-property">
     <div class="row-property__image"><img src="../../assets/visual-1.jpg" /></div>
     <div class="row-property__content">
-      <span class="content__title">{{property.title}}<br><span>{{property.location[1]}}</span></span>
+      <span class="content__title">{{property.title}}<br><span>{{property.location}}</span></span>
 
       <div class="content__price">
         <span v-if="this.removeStatusAll() === 'louer'"> {{property.price}} € / mois</span>
@@ -24,7 +24,7 @@
       </div>
 
       <div class="content__buttons"> 
-        <router-link to="/"><span class="btn">delete</span></router-link>
+        <button class="btn" @click="deleteProperty()">delete</button>
         <router-link :to="{ name: 'EditProperty', params: { id: property.id, property: test }}"><span class="btn">edit</span></router-link>
       </div>
 
@@ -33,6 +33,9 @@
 </template>
 
 <script>
+  import { deleteProperty } from '../../graphql/mutations';
+  import { listPropertys } from '../../graphql/queries';
+
   export default {
     name: 'test',
     props: ['property'],
@@ -51,6 +54,35 @@
         const status = this.property.status;
         const statusWithoutAll = remove(status, "all");
         return statusWithoutAll.toString();
+      },
+      deleteProperty() {
+
+        const id = this.property.id;
+
+        this.$apollo.mutate({
+          mutation: deleteProperty,
+          variables: {
+            input: {
+              id
+            }
+          },
+          update: (store, { data: { deleteProperty } }) => {
+            const data = store.readQuery({
+              query: listPropertys
+            })
+
+            for( var i = 0; i < data.listPropertys.items.length; i++){ 
+              if ( data.listPropertys.items[i].id === id) {
+                data.listPropertys.items.splice(i, 1); 
+              }
+            }
+
+            store.writeQuery({ query: listPropertys, data })
+          }
+        }).then((data) => {
+          
+        }).catch((error) => {
+        })
       }
     }
   }

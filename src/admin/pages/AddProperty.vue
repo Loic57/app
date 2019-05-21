@@ -140,7 +140,7 @@
         const id = parseInt(Math.random() * 100000),
           area = parseInt(this.area),
           exact_location = this.exact_location,
-          location = this.arrayLocation,
+          location = this.location,
           price = parseInt(this.price),
           status = this.arrayStatus,
           title = this.title,
