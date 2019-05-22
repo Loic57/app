@@ -25,7 +25,7 @@
 
       <div class="content__buttons"> 
         <button class="btn" @click="deleteProperty()">delete</button>
-        <router-link :to="{ name: 'EditProperty', params: { id: property.id, property: test }}"><span class="btn">edit</span></router-link>
+        <router-link :to="{ name: 'EditProperty', params: { id: property.id, property: currentProperty }}"><span class="btn">edit</span></router-link>
       </div>
 
     </div>
@@ -37,12 +37,12 @@
   import { listPropertys } from '../../graphql/queries';
 
   export default {
-    name: 'test',
-    props: ['property'],
+    name: 'PropertyRow',
+    props: ['property'], // get props from Properties component
     data() {
       return {
         status: this.statusWithoutAll,
-        test: this.property
+        currentProperty: this.property
       }
     },
     methods: {

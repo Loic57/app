@@ -96,7 +96,8 @@
 <script>
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
   import { updateProperty } from '../../graphql/mutations';
-  
+  import { getProperty } from '../../graphql/queries';
+
   export default {
     name: 'EditProperty',
     components: {
@@ -104,23 +105,33 @@
     },
     data() {
       return {
-        property: this.$route.params.property,
+        property: [],
         arrayStatus: [],
         arrayType: [],
-        arrayLocation: []
+      }
+    },
+    apollo: { 
+      property: { 
+        query: getProperty,
+        variables() {
+          return {
+            id: this.$route.params.id
+          }
+        },
+        update(data) {
+          return data.getProperty;
+        }
       }
     },
     methods: {
-       editProperty() {
+      editProperty() {
         this.arrayStatus.push('all', this.property.status);
         this.arrayType.push('all', this.property.type);
-
-        console.log(this.property.location[1]);
 
         const id = this.property.id,
           area = this.property.area,
           exact_location = this.property.exact_location,
-          location = this.property.location,
+          location = this.location,
           price = this.property.price,
           status = this.arrayStatus,
           title = this.property.title,

@@ -1,7 +1,10 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 
-export const getProperty = `query GetProperty($id: ID!) {
+import gql from "graphql-tag"
+
+
+export const getProperty = gql`query GetProperty($id: ID!) {
   getProperty(id: $id) {
     id
     area
@@ -21,7 +24,7 @@ export const getProperty = `query GetProperty($id: ID!) {
   }
 }
 `;
-export const listPropertys = `query ListPropertys(
+export const listPropertys = gql`query ListPropertys(
   $filter: ModelPropertyFilterInput
   $limit: Int
   $nextToken: String
