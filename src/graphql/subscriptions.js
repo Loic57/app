@@ -18,6 +18,11 @@ export const onCreateProperty = `subscription OnCreateProperty {
     room
     type
     creation_date
+    file {
+      bucket
+      region
+      key
+    }
   }
 }
 `;
@@ -38,6 +43,11 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     room
     type
     creation_date
+    file {
+      bucket
+      region
+      key
+    }
   }
 }
 `;
@@ -58,45 +68,11 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     room
     type
     creation_date
-  }
-}
-`;
-export const onCreatePicture = `subscription OnCreatePicture {
-  onCreatePicture {
-    id
-    name
     file {
       bucket
       region
       key
     }
-    createdAt
-  }
-}
-`;
-export const onUpdatePicture = `subscription OnUpdatePicture {
-  onUpdatePicture {
-    id
-    name
-    file {
-      bucket
-      region
-      key
-    }
-    createdAt
-  }
-}
-`;
-export const onDeletePicture = `subscription OnDeletePicture {
-  onDeletePicture {
-    id
-    name
-    file {
-      bucket
-      region
-      key
-    }
-    createdAt
   }
 }
 `;

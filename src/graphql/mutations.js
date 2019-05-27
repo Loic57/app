@@ -18,6 +18,11 @@ export const createProperty = `mutation CreateProperty($input: CreatePropertyInp
     room
     type
     creation_date
+    file {
+      bucket
+      region
+      key
+    }
   }
 }
 `;
@@ -38,6 +43,11 @@ export const updateProperty = `mutation UpdateProperty($input: UpdatePropertyInp
     room
     type
     creation_date
+    file {
+      bucket
+      region
+      key
+    }
   }
 }
 `;
@@ -58,45 +68,11 @@ export const deleteProperty = `mutation DeleteProperty($input: DeletePropertyInp
     room
     type
     creation_date
-  }
-}
-`;
-export const createPicture = `mutation CreatePicture($input: CreatePictureInput!) {
-  createPicture(input: $input) {
-    id
-    name
     file {
       bucket
       region
       key
     }
-    createdAt
-  }
-}
-`;
-export const updatePicture = `mutation UpdatePicture($input: UpdatePictureInput!) {
-  updatePicture(input: $input) {
-    id
-    name
-    file {
-      bucket
-      region
-      key
-    }
-    createdAt
-  }
-}
-`;
-export const deletePicture = `mutation DeletePicture($input: DeletePictureInput!) {
-  deletePicture(input: $input) {
-    id
-    name
-    file {
-      bucket
-      region
-      key
-    }
-    createdAt
   }
 }
 `;

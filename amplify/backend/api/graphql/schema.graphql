@@ -14,13 +14,7 @@ type Property @model {
   room: Int
   type: [String]
   creation_date: String!
-}
-
-type Picture @model {
-  id: ID!
-  name: String
   file: S3Object
-  createdAt: String
 }
 
 type S3Object {

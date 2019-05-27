@@ -18,6 +18,11 @@ export const getProperty = `query GetProperty($id: ID!) {
     room
     type
     creation_date
+    file {
+      bucket
+      region
+      key
+    }
   }
 }
 `;
@@ -43,39 +48,11 @@ export const listPropertys = `query ListPropertys(
       room
       type
       creation_date
-    }
-    nextToken
-  }
-}
-`;
-export const getPicture = `query GetPicture($id: ID!) {
-  getPicture(id: $id) {
-    id
-    name
-    file {
-      bucket
-      region
-      key
-    }
-    createdAt
-  }
-}
-`;
-export const listPictures = `query ListPictures(
-  $filter: ModelPictureFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listPictures(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      name
       file {
         bucket
         region
         key
       }
-      createdAt
     }
     nextToken
   }
