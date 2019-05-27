@@ -19,6 +19,11 @@
       </div>
 
       <div class="input">
+        <label>Image</label><br>
+        <input type="file" @change="onFileChanged">
+      </div>
+
+      <div class="input">
         <label>Surface en m²</label><br>
         <input type="text" v-model="area" required>
       </div>
@@ -109,6 +114,7 @@
     },
     data() {
       return {
+        image: null,
         id: parseInt(Math.random() * 1000000),
         area: null,
         exact_location: '',
@@ -135,6 +141,11 @@
         this.arrayLocation.push('all', this.location);
         this.arrayStatus.push('all', this.status);
         this.arrayType.push('all', this.type);
+
+        let fileParts = this.image.name.split('.');
+        let fileName = fileParts[0];
+        let fileType = fileParts[1];
+
 
 
         const id = parseInt(Math.random() * 100000),
@@ -190,6 +201,9 @@
         }).catch((error) => {
           console.log(error)
         })
+      },
+      onFileChanged(event) {
+        this.image = event.target.files[0]
       },
       getAddressData: function (addressData, placeResultData, id) {
         this.address = addressData;
