@@ -15,3 +15,16 @@ type Property @model {
   type: [String]
   creation_date: String!
 }
+
+type Picture @model {
+  id: ID!
+  name: String
+  file: S3Object
+  createdAt: String
+}
+
+type S3Object {
+  bucket: String!
+  region: String!
+  key: String!
+}
