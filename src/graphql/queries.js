@@ -1,10 +1,7 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 
-import gql from "graphql-tag"
-
-
-export const getProperty = gql`query GetProperty($id: ID!) {
+export const getProperty = `query GetProperty($id: ID!) {
   getProperty(id: $id) {
     id
     area
@@ -24,7 +21,7 @@ export const getProperty = gql`query GetProperty($id: ID!) {
   }
 }
 `;
-export const listPropertys = gql`query ListPropertys(
+export const listPropertys = `query ListPropertys(
   $filter: ModelPropertyFilterInput
   $limit: Int
   $nextToken: String
@@ -46,6 +43,39 @@ export const listPropertys = gql`query ListPropertys(
       room
       type
       creation_date
+    }
+    nextToken
+  }
+}
+`;
+export const getPicture = `query GetPicture($id: ID!) {
+  getPicture(id: $id) {
+    id
+    name
+    file {
+      bucket
+      region
+      key
+    }
+    createdAt
+  }
+}
+`;
+export const listPictures = `query ListPictures(
+  $filter: ModelPictureFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listPictures(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      name
+      file {
+        bucket
+        region
+        key
+      }
+      createdAt
     }
     nextToken
   }

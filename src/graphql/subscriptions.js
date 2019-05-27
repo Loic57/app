@@ -61,3 +61,42 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
   }
 }
 `;
+export const onCreatePicture = `subscription OnCreatePicture {
+  onCreatePicture {
+    id
+    name
+    file {
+      bucket
+      region
+      key
+    }
+    createdAt
+  }
+}
+`;
+export const onUpdatePicture = `subscription OnUpdatePicture {
+  onUpdatePicture {
+    id
+    name
+    file {
+      bucket
+      region
+      key
+    }
+    createdAt
+  }
+}
+`;
+export const onDeletePicture = `subscription OnDeletePicture {
+  onDeletePicture {
+    id
+    name
+    file {
+      bucket
+      region
+      key
+    }
+    createdAt
+  }
+}
+`;
