@@ -18,7 +18,14 @@ const client = new AWSAppSyncClient({
     type: "API_KEY",
     apiKey: "da2-ajhuqgbbbze3jkzknzps4jeawi",
   },
+  Storage: {
+    AWSS3: {
+      bucket: 'app4fd3bd165a5f4b1e8fb0c79f167a6567',
+      region: "eu-west-2"
+    }
+  },
   disableOffline: true,
+  // Amplify uses Amazon IAM to authorize calls to Amazon S3. This provides the relevant IAM credentials.
   complexObjectsCredentials: () => Auth.currentCredentials()
 });
 

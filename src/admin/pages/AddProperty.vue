@@ -20,9 +20,22 @@
 
       <div class="input">
         <label>Image</label><br>
-        <input type="file" @change="onFileChanged">
+        <input type="file" @change="onFileChanged" multiple>
+      </div>
+      <div class="grid-flex">
+        <div class="column w-20" v-for="(file, index) in filesArray" :key="file.id">
+          <div class="box-image">
+            <div class="box-image__visual"><img :src="file[1]" width="200"/></div>
+            <div class="box-image__content">
+              <div class="delete" @click="deleteFile(index)">delete</div>
+              <div class="featured">featured</div>
+            </div>
+          </div>
+        </div>
       </div>
 
+      
+     
       <div class="input">
         <label>Surface en m²</label><br>
         <input type="text" v-model="area" required>
@@ -99,6 +112,7 @@
 
 <script>
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
+  import { Auth, Storage } from 'aws-amplify';
   import { createProperty } from '../../graphql/mutations';
   import { listPropertys } from '../../graphql/queries';
 
@@ -114,7 +128,8 @@
     },
     data() {
       return {
-        image: null,
+        filesArray: [],
+        urls: [],
         id: parseInt(Math.random() * 1000000),
         area: null,
         exact_location: '',
@@ -142,27 +157,21 @@
         this.arrayStatus.push('all', this.status);
         this.arrayType.push('all', this.type);
 
-        let fileParts = this.image.name.split('.');
-        let fileName = fileParts[0];
-        let fileType = fileParts[1];
-
-
-
         const id = parseInt(Math.random() * 100000),
-          area = parseInt(this.area),
-          exact_location = this.exact_location,
-          location = this.location,
-          price = parseInt(this.price),
-          status = this.arrayStatus,
-          title = this.title,
-          bathroom = parseInt(this.bathroom),
-          bedroom = parseInt(this.bedroom),
-          garage = parseInt(this.garage),
-          parking = parseInt(this.parking),
-          reference = this.reference,
-          room = parseInt(this.room),
-          type = this.arrayType,
-          creation_date = this.creation_date;
+              area = parseInt(this.area),
+              exact_location = this.exact_location,
+              location = this.location,
+              price = parseInt(this.price),
+              status = this.arrayStatus,
+              title = this.title,
+              bathroom = parseInt(this.bathroom),
+              bedroom = parseInt(this.bedroom),
+              garage = parseInt(this.garage),
+              parking = parseInt(this.parking),
+              reference = this.reference,
+              room = parseInt(this.room),
+              type = this.arrayType,
+              creation_date = this.creation_date;
 
           
 
@@ -197,13 +206,43 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
-          this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} })
+
+          console.log(this.filesArray[1][0].name);
+
+          //upload images
+          for(let i=0;i<this.filesArray.length;i++) {
+            console.log(this.filesArray[i][0].name);
+            Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
+              contentType: this.filesArray[i][0].type,
+              progressCallback(progress) {
+                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+              }
+            })
+            .then ((result) => {
+              this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
+              console.log(result)
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+          }
         }).catch((error) => {
           console.log(error)
         })
       },
+      deleteFile(index) {
+        for(let i=0;i<this.filesArray.length;i++) {
+          if(i == index) {
+            this.filesArray.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
+          }
+        }
+      },
       onFileChanged(event) {
-        this.image = event.target.files[0]
+        if(event.target.files.length != 0) {
+          for(let i=0;i<event.target.files.length;i++) {
+            this.filesArray.push([event.target.files[i], URL.createObjectURL(event.target.files[i])]);
+          }
+        }
       },
       getAddressData: function (addressData, placeResultData, id) {
         this.address = addressData;
@@ -214,6 +253,43 @@
 </script>
 
 <style lang="scss">
+  .box-image {
+    position: relative;
+    background-color: #ffffff;
+    box-shadow: 0 0 23px 0 rgba(0,0,0,0.13);
 
+    .box-image__content {
+      border-radius:  0 0 10px 10px;
+      display: flex;
+      align-items: center;
+      text-align: center;
+
+      .delete {
+        background-color: red;
+        flex: 0 0 50%;
+        max-width: 50%;
+        color: #ffffff;
+        padding: 10px;
+        border-radius:  0 0 0 10px;
+        cursor: pointer;
+      }
+
+      .featured {
+        padding: 10px;
+        flex: 0 0 50%;
+        max-width: 50%;
+        background-color: green;
+        color: #ffffff;
+        border-radius:  0 0 10px 0;
+        cursor: pointer;
+      }
+    }
+
+    img {
+      border-radius: 10px 10px 0 0;
+      width: 100%;
+    }
+
+  }
 </style>
 
