@@ -1,7 +1,7 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 
-import gql from "graphql-tag"
+import gql from "graphql-tag";
 
 export const createProperty = gql`mutation CreateProperty($input: CreatePropertyInput!) {
   createProperty(input: $input) {
@@ -25,6 +25,8 @@ export const createProperty = gql`mutation CreateProperty($input: CreateProperty
       region
       key
     }
+    files
+    featured
   }
 }
 `;
@@ -50,6 +52,8 @@ export const updateProperty = gql`mutation UpdateProperty($input: UpdateProperty
       region
       key
     }
+    files
+    featured
   }
 }
 `;
@@ -75,6 +79,8 @@ export const deleteProperty = gql`mutation DeleteProperty($input: DeleteProperty
       region
       key
     }
+    files
+    featured
   }
 }
 `;

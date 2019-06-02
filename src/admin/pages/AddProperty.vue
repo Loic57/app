@@ -28,13 +28,11 @@
             <div class="box-image__visual"><img :src="file[1]" width="200"/></div>
             <div class="box-image__content">
               <div class="delete" @click="deleteFile(index)">delete</div>
-              <div class="featured">featured</div>
+              <div class="featured" @click="featuredFile(index)">featured</div>
             </div>
           </div>
         </div>
       </div>
-
-      
      
       <div class="input">
         <label>Surface en m²</label><br>
@@ -129,7 +127,8 @@
     data() {
       return {
         filesArray: [],
-        urls: [],
+        featured: null,
+        filesNamesArray: [],
         id: parseInt(Math.random() * 1000000),
         area: null,
         exact_location: '',
@@ -171,8 +170,12 @@
               reference = this.reference,
               room = parseInt(this.room),
               type = this.arrayType,
-              creation_date = this.creation_date;
-
+              creation_date = this.creation_date,
+              bucket = "app4fd3bd165a5f4b1e8fb0c79f167a6567",
+              region = "eu-west-2",
+              key = id,
+              files = this.filesNamesArray,
+              featured = this.featured[0].name;
           
 
         this.$apollo.mutate({
@@ -193,7 +196,14 @@
               reference,
               room,
               type,
-              creation_date
+              creation_date,
+              files,
+              featured,
+              file: {
+                bucket,
+                region,
+                key
+              }
             }
           },
           update: (store, { data: { createProperty } }) => {
@@ -207,20 +217,17 @@
           }
         }).then((data) => {
 
-          console.log(this.filesArray[1][0].name);
-
           //upload images
           for(let i=0;i<this.filesArray.length;i++) {
-            console.log(this.filesArray[i][0].name);
             Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
               contentType: this.filesArray[i][0].type,
+              metadata: { key: this.filesArray[i][0].name },
               progressCallback(progress) {
                 console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
               }
             })
             .then ((result) => {
               this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
-              console.log(result)
             })
             .catch((err) => {
               console.log(err)
@@ -237,14 +244,67 @@
           }
         }
       },
-      onFileChanged(event) {
-        if(event.target.files.length != 0) {
-          for(let i=0;i<event.target.files.length;i++) {
-            this.filesArray.push([event.target.files[i], URL.createObjectURL(event.target.files[i])]);
+      featuredFile(index) {
+        for(let i=0;i<this.filesArray.length;i++) {
+          if(i == index) {
+            this.featured = this.filesArray[i]; 
           }
         }
       },
-      getAddressData: function (addressData, placeResultData, id) {
+      onFileChanged(event) {
+        if(event.target.files.length != 0) {
+          for(let i=0;i<event.target.files.length;i++) {
+            this.filesArray.push([event.target.files[i], URL.createObjectURL(event.target.files[i])]); //tableau qui contient [fichier img complet, url]
+            this.filesNamesArray.push(event.target.files[i].name); //tableau qui contient [nom de l'image]
+
+            
+            // Create an image
+            var img = document.createElement("img");
+
+            // Create a file reader
+            var reader = new FileReader();
+
+            // Set the image once loaded into file reader
+            reader.onload = function(e)
+            {
+              img.src = e.target.result;
+
+              var canvas = document.createElement("canvas");
+
+              var ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+
+              var MAX_WIDTH = 400;
+              var MAX_HEIGHT = 300;
+              var width = img.width;
+              var height = img.height;
+
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height *= MAX_WIDTH / width;
+                  width = MAX_WIDTH;
+                }
+              } else {
+                if (height > MAX_HEIGHT) {
+                  width *= MAX_HEIGHT / height;
+                  height = MAX_HEIGHT;
+                }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              var ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, width, height);
+
+              var dataurl = canvas.toDataURL("image/png");
+              document.getElementById('image').src = dataurl;     
+            }
+            // Load files into file reader
+            console.log(this.filesArray[0][1]);
+            reader.readAsDataURL(this.filesArray[0][1]);
+          }
+        }
+      },
+      getAddressData: function (addressData) {
         this.address = addressData;
         this.location = this.address.locality;
       }

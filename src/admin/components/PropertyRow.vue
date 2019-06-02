@@ -1,6 +1,6 @@
 <template>
   <div class="row-property">
-    <div class="row-property__image"><img src="../../assets/visual-1.jpg" /></div>
+    <div class="row-property__image"><img :src=thumbnails[0] /></div>
     <div class="row-property__content">
       <span class="content__title">{{property.title}}<br><span>{{property.location}}</span></span>
 
@@ -35,6 +35,7 @@
 <script>
   import { deleteProperty } from '../../graphql/mutations';
   import { listPropertys } from '../../graphql/queries';
+  import { Auth, Storage } from 'aws-amplify';
 
   export default {
     name: 'PropertyRow',
@@ -42,7 +43,8 @@
     data() {
       return {
         status: this.statusWithoutAll,
-        currentProperty: this.property
+        currentProperty: this.property,
+        thumbnails: []
       }
     },
     methods: {
@@ -84,6 +86,16 @@
         }).catch((error) => {
         })
       }
+    },
+    mounted() {
+      Storage.get(`${this.property.id}/${this.property.featured}`)
+        .then((result) => {
+          this.thumbnails.push(result)
+          
+        })
+        .catch(err => console.log(err));
+
+      console.log(this.thumbnails)
     }
   }
 </script>

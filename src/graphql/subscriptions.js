@@ -23,6 +23,8 @@ export const onCreateProperty = `subscription OnCreateProperty {
       region
       key
     }
+    files
+    featured
   }
 }
 `;
@@ -48,6 +50,8 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
       region
       key
     }
+    files
+    featured
   }
 }
 `;
@@ -73,6 +77,8 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
       region
       key
     }
+    files
+    featured
   }
 }
 `;

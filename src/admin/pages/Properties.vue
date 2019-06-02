@@ -18,12 +18,10 @@
 <script>
   import PropertyRow from "../components/PropertyRow"
   import { listPropertys } from '../../graphql/queries';
-  import VueGoogleAutocomplete from 'vue-google-autocomplete'
 
   export default {
     components: {
-      PropertyRow,
-      VueGoogleAutocomplete
+      PropertyRow
     },
     data() {
       return {
@@ -122,10 +120,6 @@
             }
           }
         })
-      },
-      getAddressData: function (addressData, placeResultData, id) {
-        this.address = addressData;
-        this.LocationValue = this.address.locality;
       }
     }
   }
