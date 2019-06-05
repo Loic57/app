@@ -1,6 +1,6 @@
 <template>
   <div class="row-property">
-    <div class="row-property__image"><img :src=thumbnails[0] /></div>
+    <div class="row-property__image"><img :src=thumbnail /></div>
     <div class="row-property__content">
       <span class="content__title">{{property.title}}<br><span>{{property.location}}</span></span>
 
@@ -44,7 +44,7 @@
       return {
         status: this.statusWithoutAll,
         currentProperty: this.property,
-        thumbnails: []
+        thumbnail: null
       }
     },
     methods: {
@@ -82,6 +82,11 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
+            for(let i=0;i<data.data.deleteProperty.files.length;i++) {
+              Storage.remove(`${id}/${data.data.deleteProperty.files[i]}`)
+              .then((result) => {console.log(result)})
+              .catch(err => console.log(err));
+            }
           
         }).catch((error) => {
         })
@@ -90,12 +95,9 @@
     mounted() {
       Storage.get(`${this.property.id}/${this.property.featured}`)
         .then((result) => {
-          this.thumbnails.push(result)
-          
+          this.thumbnail = result          
         })
         .catch(err => console.log(err));
-
-      console.log(this.thumbnails)
     }
   }
 </script>

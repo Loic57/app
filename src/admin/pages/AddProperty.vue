@@ -24,7 +24,7 @@
       </div>
       <div class="grid-flex">
         <div class="column w-20" v-for="(file, index) in filesArray" :key="file.id">
-          <div class="box-image">
+          <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
             <div class="box-image__visual"><img :src="file[1]" width="200"/></div>
             <div class="box-image__content">
               <div class="delete" @click="deleteFile(index)">delete</div>
@@ -33,6 +33,8 @@
           </div>
         </div>
       </div>
+
+      <div class="message" v-if="featuredMessage">Merci de sélectionner une image featured</div>
      
       <div class="input">
         <label>Surface en m²</label><br>
@@ -146,41 +148,46 @@
         arrayLocation: [],
         arrayStatus: [],
         arrayType: [],
-        creation_date: currentDate
+        creation_date: currentDate,
+        indexFeatured: -1,
+        featuredMessage: false
       }
     },
     methods: {
       addProperty() {
 
-        this.arrayLocation.push('all', this.location);
-        this.arrayStatus.push('all', this.status);
-        this.arrayType.push('all', this.type);
+        if(this.featured == null) {
+          this.featuredMessage = true;
+        }
+        else {
+          this.arrayLocation.push('all', this.location);
+          this.arrayStatus.push('all', this.status);
+          this.arrayType.push('all', this.type);
 
-        const id = parseInt(Math.random() * 100000),
-              area = parseInt(this.area),
-              exact_location = this.exact_location,
-              location = this.location,
-              price = parseInt(this.price),
-              status = this.arrayStatus,
-              title = this.title,
-              bathroom = parseInt(this.bathroom),
-              bedroom = parseInt(this.bedroom),
-              garage = parseInt(this.garage),
-              parking = parseInt(this.parking),
-              reference = this.reference,
-              room = parseInt(this.room),
-              type = this.arrayType,
-              creation_date = this.creation_date,
-              bucket = "app4fd3bd165a5f4b1e8fb0c79f167a6567",
-              region = "eu-west-2",
-              key = id,
-              files = this.filesNamesArray,
-              featured = this.featured[0].name;
-          
+          const id = parseInt(Math.random() * 100000),
+                area = parseInt(this.area),
+                exact_location = this.exact_location,
+                location = this.location,
+                price = parseInt(this.price),
+                status = this.arrayStatus,
+                title = this.title,
+                bathroom = parseInt(this.bathroom),
+                bedroom = parseInt(this.bedroom),
+                garage = parseInt(this.garage),
+                parking = parseInt(this.parking),
+                reference = this.reference,
+                room = parseInt(this.room),
+                type = this.arrayType,
+                creation_date = this.creation_date,
+                bucket = "app4fd3bd165a5f4b1e8fb0c79f167a6567",
+                region = "eu-west-2",
+                key = id,
+                files = this.filesNamesArray,
+                featured = this.featured[0].name;
 
-        this.$apollo.mutate({
-          mutation: createProperty,
-          variables: {
+          this.$apollo.mutate({
+            mutation: createProperty,
+            variables: {
             input: {
               id,
               area,
@@ -216,26 +223,28 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
+            //const test = this.resizeImage(this.featured[0]);
 
-          //upload images
-          for(let i=0;i<this.filesArray.length;i++) {
-            Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
-              contentType: this.filesArray[i][0].type,
-              metadata: { key: this.filesArray[i][0].name },
-              progressCallback(progress) {
-                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-              }
-            })
-            .then ((result) => {
-              this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
-            })
-            .catch((err) => {
-              console.log(err)
-            })
-          }
-        }).catch((error) => {
-          console.log(error)
-        })
+            //upload images
+            for(let i=0;i<this.filesArray.length;i++) {
+              Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
+                contentType: this.filesArray[i][0].type,
+                metadata: { key: this.filesArray[i][0].name },
+                progressCallback(progress) {
+                  //console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+                }
+              })
+              .then ((result) => {
+                this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+            }
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
       },
       deleteFile(index) {
         for(let i=0;i<this.filesArray.length;i++) {
@@ -248,8 +257,64 @@
         for(let i=0;i<this.filesArray.length;i++) {
           if(i == index) {
             this.featured = this.filesArray[i]; 
+            this.indexFeatured = index;
+            this.featuredMessage = false;
           }
         }
+      },
+      resizeImage(file) {
+        const width = 500;
+        const height = 300;
+        const fileName = file.name;
+        const fileType = file.type;
+
+        const reader = new FileReader(); //create instance filereader
+        reader.readAsDataURL(file); //read input image using filereader
+
+        reader.onload = event => {
+          const img = new Image(); //Create an instance of Image.
+          img.src = event.target.result; //Set the result of the FileReader as source for the image.
+
+          img.onload = () => {
+            const elem = document.createElement('canvas'); //Create a HTML5 Canvas element
+            const width = 500;
+            const scaleFactor = width / img.width;
+            elem.width = width;
+            elem.height = img.height * scaleFactor;
+
+            const ctx = elem.getContext('2d'); //Create an object that is used to draw graphics on the canvas.
+            
+            ctx.drawImage(img, 0, 0, width, img.height * scaleFactor); // img.width and img.height will contain the original dimensions
+
+            if (!HTMLCanvasElement.prototype.toBlob) {
+              Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+                value: function (callback, type, quality) {
+                  var dataURL = this.toDataURL(type, quality).split(',')[1];
+                  setTimeout(function() {
+                    var binStr = atob( dataURL ),
+                        len = binStr.length,
+                        arr = new Uint8Array(len);
+                    for (var i = 0; i < len; i++ ) {
+                      arr[i] = binStr.charCodeAt(i);
+                    }
+                    callback( new Blob( [arr], {type: type || 'image/png'} ) );
+                  });
+                }
+              });
+            }
+            else {
+              //const data = ctx.canvas.toDataURL(img, mime, quality);
+              ctx.canvas.toBlob((blob) => { //Export the canvas as a blob or DataURL by specifying MIME type, image quality.
+                return file = new File([blob], fileName, {
+                  type: fileType,
+                  lastModified: Date.now()
+                });
+
+              }, fileType, 1);
+            }
+          },
+          reader.onerror = error => console.log(error);
+        };
       },
       onFileChanged(event) {
         if(event.target.files.length != 0) {
@@ -258,49 +323,14 @@
             this.filesNamesArray.push(event.target.files[i].name); //tableau qui contient [nom de l'image]
 
             
-            // Create an image
-            var img = document.createElement("img");
+          }
 
-            // Create a file reader
-            var reader = new FileReader();
 
-            // Set the image once loaded into file reader
-            reader.onload = function(e)
-            {
-              img.src = e.target.result;
-
-              var canvas = document.createElement("canvas");
-
-              var ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0);
-
-              var MAX_WIDTH = 400;
-              var MAX_HEIGHT = 300;
-              var width = img.width;
-              var height = img.height;
-
-              if (width > height) {
-                if (width > MAX_WIDTH) {
-                  height *= MAX_WIDTH / width;
-                  width = MAX_WIDTH;
-                }
-              } else {
-                if (height > MAX_HEIGHT) {
-                  width *= MAX_HEIGHT / height;
-                  height = MAX_HEIGHT;
-                }
-              }
-              canvas.width = width;
-              canvas.height = height;
-              var ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0, width, height);
-
-              var dataurl = canvas.toDataURL("image/png");
-              document.getElementById('image').src = dataurl;     
-            }
-            // Load files into file reader
-            console.log(this.filesArray[0][1]);
-            reader.readAsDataURL(this.filesArray[0][1]);
+          for(let i=0;i<this.filesArray.length;i++) {
+            var blob = this.filesArray[i][0].slice(0, this.filesArray[i][0].size, this.filesArray[i][0].type); 
+            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + this.filesArray[i][0].type, {type: this.filesArray[i][0].type});
+            console.log(newFile);
+            //this.filesArray[i][0].name = Math.random().toString(11).replace('0.', '');
           }
         }
       },
@@ -317,6 +347,10 @@
     position: relative;
     background-color: #ffffff;
     box-shadow: 0 0 23px 0 rgba(0,0,0,0.13);
+    border-radius: 15px;
+    border: 5px solid transparent;
+
+    &.featured {border: 5px solid green}
 
     .box-image__content {
       border-radius:  0 0 10px 10px;

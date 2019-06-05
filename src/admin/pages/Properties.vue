@@ -7,6 +7,7 @@
       <div class="mt-3" v-if="propertyCreated">Le bien immobilier a bien été créé.</div>
       <div class="mt-3" v-if="propertyUpdated">Le bien immobilier a bien été mis à jour.</div>
       <div class="grid-flex" >
+        <div v-if="properties == 0">Aucun bien pour le moment</div>
         <div class="column w-100" v-for="property in properties" :key="property.id">
           <PropertyRow :property="property"/>
         </div>
