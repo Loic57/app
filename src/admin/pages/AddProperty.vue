@@ -10,6 +10,10 @@
       </div>
 
       <div class="input">
+        <label><input type="checkbox" name="choix" v-model="featuredProperty" value="featured" /> Acheter</label><br>
+      </div>
+
+      <div class="input">
         <label>Type de bien</label><br>
         <select v-model="type" required>
           <option value="" :selected="true">Sélectionner un type de bien</option>
@@ -18,14 +22,16 @@
         </select>
       </div>
 
+      
+
       <div class="input">
         <label>Image</label><br>
         <input type="file" @change="onFileChanged" multiple>
       </div>
       <div class="grid-flex">
-        <div class="column w-20" v-for="(file, index) in filesArray" :key="file.id">
+        <div class="column w-20" v-for="(file, index) in filesArrayURL" :key="file.id">
           <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
-            <div class="box-image__visual"><img :src="file[1]" width="200"/></div>
+            <div class="box-image__visual"><img :src="file" width="200"/></div>
             <div class="box-image__content">
               <div class="delete" @click="deleteFile(index)">delete</div>
               <div class="featured" @click="featuredFile(index)">featured</div>
@@ -129,7 +135,9 @@
     data() {
       return {
         filesArray: [],
-        featured: null,
+        filesArrayURL: [],
+        featuredImage: null,
+        featuredProperty: null,
         filesNamesArray: [],
         id: parseInt(Math.random() * 1000000),
         area: null,
@@ -164,6 +172,10 @@
           this.arrayStatus.push('all', this.status);
           this.arrayType.push('all', this.type);
 
+          for(let i=0;i<this.filesArray.length;i++) {
+            this.filesNamesArray.push(this.filesArray[i].name)
+          }
+
           const id = parseInt(Math.random() * 100000),
                 area = parseInt(this.area),
                 exact_location = this.exact_location,
@@ -183,7 +195,7 @@
                 region = "eu-west-2",
                 key = id,
                 files = this.filesNamesArray,
-                featured = this.featured[0].name;
+                featured = this.featured.name;
 
           this.$apollo.mutate({
             mutation: createProperty,
@@ -223,15 +235,18 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
-            //const test = this.resizeImage(this.featured[0]);
 
             //upload images
             for(let i=0;i<this.filesArray.length;i++) {
-              Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
-                contentType: this.filesArray[i][0].type,
-                metadata: { key: this.filesArray[i][0].name },
+
+              
+
+
+              Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
+                contentType: this.filesArray[i].type,
+                metadata: { key: this.filesArray[i].name },
                 progressCallback(progress) {
-                  //console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+                  console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
                 }
               })
               .then ((result) => {
@@ -255,11 +270,24 @@
       },
       featuredFile(index) {
         for(let i=0;i<this.filesArray.length;i++) {
+
+          var blob = this.filesArray[i].slice(0, this.filesArray[i].size, this.filesArray[i].type); 
+          
+          var type = this.filesArray[i].type;
+          var newType = type.substring(6);
+
+          var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + newType, {type: this.filesArray[i].type});
+
+          this.filesArray[i] = newFile; //on remplace le fichier avec son ancien nom par le nouveau nom
+
           if(i == index) {
-            this.featured = this.filesArray[i]; 
+            this.filesArray[i] = new File([blob], 'featured-' + Math.random().toString(11).replace('0.', '') + '.' + newType, {type: this.filesArray[i].type});
+            this.featured = this.filesArray[i];
             this.indexFeatured = index;
             this.featuredMessage = false;
           }
+
+          this.resizeImage(this.filesArray[i]);
         }
       },
       resizeImage(file) {
@@ -286,6 +314,8 @@
             
             ctx.drawImage(img, 0, 0, width, img.height * scaleFactor); // img.width and img.height will contain the original dimensions
 
+            
+
             if (!HTMLCanvasElement.prototype.toBlob) {
               Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
                 value: function (callback, type, quality) {
@@ -303,34 +333,23 @@
               });
             }
             else {
-              //const data = ctx.canvas.toDataURL(img, mime, quality);
+              //const data = ctx.canvas.toDataURL(img, fileType, 1);
               ctx.canvas.toBlob((blob) => { //Export the canvas as a blob or DataURL by specifying MIME type, image quality.
-                return file = new File([blob], fileName, {
+                let file = new File([blob], fileName, {
                   type: fileType,
                   lastModified: Date.now()
                 });
-
               }, fileType, 1);
             }
           },
           reader.onerror = error => console.log(error);
         };
       },
-      onFileChanged(event) {
-        if(event.target.files.length != 0) {
+      onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
+        if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
-            this.filesArray.push([event.target.files[i], URL.createObjectURL(event.target.files[i])]); //tableau qui contient [fichier img complet, url]
-            this.filesNamesArray.push(event.target.files[i].name); //tableau qui contient [nom de l'image]
-
-            
-          }
-
-
-          for(let i=0;i<this.filesArray.length;i++) {
-            var blob = this.filesArray[i][0].slice(0, this.filesArray[i][0].size, this.filesArray[i][0].type); 
-            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + this.filesArray[i][0].type, {type: this.filesArray[i][0].type});
-            console.log(newFile);
-            //this.filesArray[i][0].name = Math.random().toString(11).replace('0.', '');
+            this.filesArray.push(event.target.files[i]); //tableau qui contient fichier img complet
+            this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
           }
         }
       },

@@ -16,7 +16,7 @@ const client = new AWSAppSyncClient({
   region: "eu-west-2",
   auth: {
     type: "API_KEY",
-    apiKey: "da2-ajhuqgbbbze3jkzknzps4jeawi",
+    apiKey: "da2-rprvz3hdpze27nslwyzl3pjbnq",
   },
   Storage: {
     AWSS3: {
