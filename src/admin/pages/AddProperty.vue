@@ -10,7 +10,7 @@
       </div>
 
       <div class="input">
-        <label><input type="checkbox" name="choix" v-model="featuredProperty" value="featured" /> Acheter</label><br>
+        <label><input type="checkbox" name="choix" v-model="featuredProperty" /> Featured ?</label><br>
       </div>
 
       <div class="input">
@@ -22,12 +22,11 @@
         </select>
       </div>
 
-      
-
       <div class="input">
         <label>Image</label><br>
         <input type="file" @change="onFileChanged" multiple>
       </div>
+
       <div class="grid-flex">
         <div class="column w-20" v-for="(file, index) in filesArrayURL" :key="file.id">
           <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
@@ -137,7 +136,7 @@
         filesArray: [],
         filesArrayURL: [],
         featuredImage: null,
-        featuredProperty: null,
+        featuredProperty: false,
         filesNamesArray: [],
         id: parseInt(Math.random() * 1000000),
         area: null,
@@ -164,7 +163,7 @@
     methods: {
       addProperty() {
 
-        if(this.featured == null) {
+        if(this.featuredImage == null) {
           this.featuredMessage = true;
         }
         else {
@@ -195,7 +194,8 @@
                 region = "eu-west-2",
                 key = id,
                 files = this.filesNamesArray,
-                featured = this.featured.name;
+                featuredImage = this.featuredImage.name,
+                featuredProperty = this.featuredProperty;
 
           this.$apollo.mutate({
             mutation: createProperty,
@@ -217,7 +217,8 @@
               type,
               creation_date,
               files,
-              featured,
+              featuredProperty,
+              featuredImage,
               file: {
                 bucket,
                 region,
@@ -238,10 +239,6 @@
 
             //upload images
             for(let i=0;i<this.filesArray.length;i++) {
-
-              
-
-
               Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
                 contentType: this.filesArray[i].type,
                 metadata: { key: this.filesArray[i].name },
@@ -264,7 +261,8 @@
       deleteFile(index) {
         for(let i=0;i<this.filesArray.length;i++) {
           if(i == index) {
-            this.filesArray.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
+            this.filesArrayURL.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
+            this.filesArray.splice(index, 1);
           }
         }
       },
@@ -272,22 +270,29 @@
         for(let i=0;i<this.filesArray.length;i++) {
 
           var blob = this.filesArray[i].slice(0, this.filesArray[i].size, this.filesArray[i].type); 
-          
           var type = this.filesArray[i].type;
           var newType = type.substring(6);
 
-          var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + newType, {type: this.filesArray[i].type});
+          var tempName = this.filesArray[i].name;
+          var newFile = new File([blob], tempName, {type:this.filesArray[i].type});
 
-          this.filesArray[i] = newFile; //on remplace le fichier avec son ancien nom par le nouveau nom
-
+          if(this.filesArray[i].name.startsWith('featured-')) { //si l'élément i du tableau a un nom qui commence par featured alors... 
+            var tempArrayName = this.filesArray[i].name.split('-'); //on divise le nom en deux, à partir du tiret
+            tempArrayName.shift(); //on supprime la première partie
+            var newFile = new File([blob], tempArrayName, {type:this.filesArray[i].type}); //on met le nouveau nom
+          }
+          
           if(i == index) {
-            this.filesArray[i] = new File([blob], 'featured-' + Math.random().toString(11).replace('0.', '') + '.' + newType, {type: this.filesArray[i].type});
-            this.featured = this.filesArray[i];
+            var tempName = 'featured-' + this.filesArray[i].name; //on donne un nouveau nom à l'image en featured
+            var newFile = new File([blob], tempName, {type:this.filesArray[i].type}); //on met le nouveau nom
+            this.featuredImage = this.filesArray[i]; //on attribute à featuredImage le fichier image qui est en feature
             this.indexFeatured = index;
             this.featuredMessage = false;
           }
 
-          this.resizeImage(this.filesArray[i]);
+          this.filesArray[i] = newFile
+
+          //this.resizeImage(this.filesArray[i]);
         }
       },
       resizeImage(file) {
@@ -313,8 +318,6 @@
             const ctx = elem.getContext('2d'); //Create an object that is used to draw graphics on the canvas.
             
             ctx.drawImage(img, 0, 0, width, img.height * scaleFactor); // img.width and img.height will contain the original dimensions
-
-            
 
             if (!HTMLCanvasElement.prototype.toBlob) {
               Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
@@ -348,7 +351,14 @@
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
-            this.filesArray.push(event.target.files[i]); //tableau qui contient fichier img complet
+
+            var blob = event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type); 
+            var type = event.target.files[i].type;
+            var newType = type.substring(6);
+
+            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + newType, {type:event.target.files[i].type});
+
+            this.filesArray.push(newFile); //tableau qui contient fichier img complet
             this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
           }
         }

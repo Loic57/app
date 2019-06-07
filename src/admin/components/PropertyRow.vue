@@ -2,7 +2,7 @@
   <div class="row-property">
     <div class="row-property__image"><img :src=thumbnail /></div>
     <div class="row-property__content">
-      <span class="content__title">{{property.title}}<br><span>{{property.location}}</span></span>
+      <span class="content__title">{{property.reference}}<br><span>{{property.location}}</span></span>
 
       <div class="content__price">
         <span v-if="this.removeStatusAll() === 'louer'"> {{property.price}} € / mois</span>
@@ -93,7 +93,7 @@
       }
     },
     mounted() {
-      Storage.get(`${this.property.id}/${this.property.featured}`)
+      Storage.get(`${this.property.id}/${this.property.featuredImage}`)
         .then((result) => {
           this.thumbnail = result          
         })

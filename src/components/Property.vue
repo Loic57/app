@@ -1,6 +1,6 @@
 <template>
   <router-link :to="{ name: 'SingleProperty', params: { id: property.id }}" class="box-article">
-    <div class="box-article__image"><img src="../assets/visual-1.jpg" /></div>
+    <div class="box-article__image"><img :src=thumbnail /></div>
     <div class="box-article__content">
       <p class="content__title">{{property.title}}</p>
       <p class="content__location">{{property.location}}</p>
@@ -27,11 +27,16 @@
 </template>
 
 <script>
+
+  import { Auth, Storage } from 'aws-amplify';
+
+  
   export default {
     name: 'test',
     props: ['property'],
     data() {
       return {
+        thumbnail: null,
         status: this.statusWithoutAll
       }
     },
@@ -45,7 +50,15 @@
         const statusWithoutAll = remove(status, "all");
         return statusWithoutAll.toString();
       }
-    }
+    },
+    mounted() {
+        Storage.get(`${this.property.id}/${this.property.featuredImage}`)
+          .then((result) => {
+            this.thumbnail = result;
+            console.log(result)         
+          })
+          .catch(err => console.log(err));
+      }
   }
 </script>
 

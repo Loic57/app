@@ -20,6 +20,23 @@
       </div>
 
       <div class="input">
+        <label>Image</label><br>
+        <input type="file" @change="onFileChanged" multiple>
+      </div>
+
+      <div class="grid-flex">
+        <div class="column w-20" v-for="(file, index) in filesArray" :key="file.id">
+          <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
+            <div class="box-image__visual"><img :src="file" width="200"/></div>
+            <div class="box-image__content">
+              <div class="delete" @click="deleteFile(index)">delete</div>
+              <div class="featured" @click="featuredFile(index)">featured</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input">
         <label>Surface en m²</label><br>
         <input type="text" v-model="property.area" required>
       </div>
@@ -97,7 +114,7 @@
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
   import { updateProperty } from '../../graphql/mutations';
   import { getProperty } from '../../graphql/queries';
-
+  import { Auth, Storage } from 'aws-amplify';
   export default {
     name: 'EditProperty',
     components: {
@@ -106,8 +123,11 @@
     data() {
       return {
         property: [],
+        filesArrayURL: [],
         arrayStatus: [],
         arrayType: [],
+        filesArray: [],
+        indexFeatured: -1,
       }
     },
     apollo: { 
@@ -142,7 +162,8 @@
           reference = this.property.reference,
           room = this.property.room,
           type = this.arrayType,
-          creation_date = this.property.creation_date;
+          creation_date = this.property.creation_date,
+          files = this.property.files;
 
         this.$apollo.mutate({
           mutation: updateProperty,
@@ -162,7 +183,8 @@
               reference,
               room,
               type,
-              creation_date
+              creation_date,
+              files
             }
           }
         }).then((data) => {
@@ -171,10 +193,50 @@
           console.log(error)
         })
       },
+      deleteFile(index) {
+        for(let i=0;i<this.filesArray.length;i++) {
+          if(i == index) {
+            //this.filesArrayURL.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
+            this.filesArray.splice(index, 1);
+          }
+        }
+      },
+      featuredFile(index) {
+
+        for(let i=0;i<this.filesArray.length;i++) {
+
+        }
+      },
+      onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
+        if(event.target.files.length != 0) { //s'il y a réellement des images
+          for(let i=0;i<event.target.files.length;i++) {
+
+            var blob = event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type); 
+            var type = event.target.files[i].type;
+            var newType = type.substring(6);
+
+            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + newType, {type:event.target.files[i].type});
+
+            this.filesArray.push(newFile); //tableau qui contient fichier img complet
+            this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
+          }
+        }
+      },
       getAddressData: function (addressData, placeResultData, id) {
         this.address = addressData;
         this.location = this.address.locality;
       }
+    },
+    mounted() {
+      setTimeout(() => {
+        for(let i=0;i<this.property.files.length;i++) {
+          Storage.get(`${this.property.id}/${this.property.files[i]}`)
+            .then((result) => {
+              this.filesArray.push(result)
+            })
+            .catch(err => console.log(err));
+        }
+      }, 500)
     }
   }
 </script>

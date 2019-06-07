@@ -24,7 +24,8 @@ export const onCreateProperty = `subscription OnCreateProperty {
       key
     }
     files
-    featured
+    featuredImage
+    featuredProperty
   }
 }
 `;
@@ -51,7 +52,8 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
       key
     }
     files
-    featured
+    featuredImage
+    featuredProperty
   }
 }
 `;
@@ -78,7 +80,8 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
       key
     }
     files
-    featured
+    featuredImage
+    featuredProperty
   }
 }
 `;

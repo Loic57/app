@@ -16,7 +16,8 @@ type Property @model {
   creation_date: String!
   file: S3Object
   files: [String]
-  featured: String!
+  featuredImage: String!
+  featuredProperty: Boolean
 }
 
 enum Visibility {
