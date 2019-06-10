@@ -145,19 +145,72 @@
         update(data) {
           //return data.listPropertys.items;
 
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "status": {
-                "contains": this.StatusValue
-              },
-              "location": {
-                "contains": this.LocationValue
-              },
-              "type": {
-                "contains": this.TypeValue
+          if(this.TypeValue == "" && this.StatusValue == "" && this.LocationValue == "") {
+            return data.listPropertys.items;
+          }
+          else if(this.TypeValue == "" && this.StatusValue == "") {
+            this.$apollo.queries.properties.refetch({
+              "filter": {
+                "location": {
+                  "contains": this.LocationValue
+                }
               }
-            }
-          })
+            })
+          }
+          else if(this.TypeValue == "" && this.LocationValue == "") {
+            this.$apollo.queries.properties.refetch({
+              "filter": {
+                "status": {
+                  "contains": this.StatusValue
+                }
+              }
+            })
+          }
+          else if(this.StatusValue == "" && this.LocationValue == "") {
+            this.$apollo.queries.properties.refetch({
+              "filter": {
+                "type": {
+                  "contains": this.TypeValue
+                }
+              }
+            })
+          }
+          else if(this.TypeValue == "") {
+            this.$apollo.queries.properties.refetch({
+              "filter": {
+                "status": {
+                  "contains": this.StatusValue
+                },
+                "location": {
+                  "contains": this.LocationValue
+                }
+              }
+            })
+          }
+          else if(this.LocationValue == "") {
+            this.$apollo.queries.properties.refetch({
+              "filter": {
+                "status": {
+                  "contains": this.StatusValue
+                },
+                "type": {
+                  "contains": this.TypeValue
+                }
+              }
+            })
+          }
+          else if(this.StatusValue == "") {
+            this.$apollo.queries.properties.refetch({
+              "filter": {
+                "type": {
+                  "contains": this.TypeValue
+                },
+                "location": {
+                  "contains": this.LocationValue
+                }
+              }
+            })
+          }
 
           return data.listPropertys.items;
         }

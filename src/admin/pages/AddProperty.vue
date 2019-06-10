@@ -10,7 +10,7 @@
       </div>
 
       <div class="input">
-        <label><input type="checkbox" name="choix" v-model="featuredProperty" @click="checkFeaturedNumber"/> Featured ?</label><br>
+        <label><input type="checkbox" name="choix" v-model="featuredProperty" @click="checkFeaturedNumber()"/> Featured ?</label><br>
       </div>
 
       <div class="message" v-if="featuredPropertiesNumberMessage">Il existe déja 3 biens immobiliers en statut "featured", merci de d'abord en annuler un.</div>
@@ -173,18 +173,13 @@
         query: listPropertys,
         update(data) {
           return this.listProperties = data.listPropertys.items;
-        },
-        skip() {
-          return this.skipQuery
-        },
+        }
       }
     },
     methods: {
       checkFeaturedNumber() {
-        this.$apollo.queries.properties.skip = false
-        this.$apollo.queries.properties.refetch();
-
-        let arrayFeaturedProperties = []
+        let arrayFeaturedProperties = [];
+        this.featuredPropertiesNumberMessage = false;
 
         for(let i=0;i<this.listProperties.length;i++) {
           if(this.listProperties[i].featuredProperty) {
@@ -192,13 +187,23 @@
           }
         }
 
-        if(arrayFeaturedProperties.length >= 3) {
-          this.featuredPropertiesNumberMessage = true
+        if(!this.featuredProperty) {
+          if(arrayFeaturedProperties.length >= 3) {
+            this.featuredPropertiesNumberMessage = true
+          }
         }
+        else {
+          this.featuredPropertiesNumberMessage = false
+        }
+
+        return arrayFeaturedProperties.length
       },
       addProperty() {
         if(this.featuredImage == null) {
           this.featuredMessage = true;
+        }
+        else if(this.featuredProperty && this.checkFeaturedNumber() >= 3) {
+          this.featuredPropertiesNumberMessage = true
         }
         else {
           this.arrayLocation.push('all', this.location);
@@ -321,7 +326,6 @@
           }
           
           if(i == index) {
-            console.log('ici')
             var tempName = 'featured-' + this.filesArray[i].name; //on donne un nouveau nom à l'image en featured
             var newFile = new File([blob], tempName, {type:this.filesArray[i].type}); //on met le nouveau nom
             this.featuredImage = newFile; //on attribute à featuredImage le fichier image qui est en feature
@@ -332,20 +336,14 @@
             this.featuredImageAdminPanel = newFile; //un tableau qui ne contient que l'image featured
           }
 
-  
           this.filesArray[i] = newFile //tableau qui contient les images
-    
-          
+      
           this.filesArrayNames[i] = newFile.name; //tableau qui contient uniquement les noms d'images
           this.resizeImage(this.filesArray[i]); 
 
-
-          
         }
 
         this.resizeFeaturedImageAdminPanel(this.featuredImageAdminPanel);
-
-        
       },
       dataURItoBlob(dataURI, index, featuredImageAdminPanelName) {
         // convert base64 to raw binary data held in a string
