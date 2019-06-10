@@ -3,6 +3,7 @@
 
 import gql from "graphql-tag"
 
+
 export const createProperty = gql`mutation CreateProperty($input: CreatePropertyInput!) {
   createProperty(input: $input) {
     id
@@ -20,13 +21,9 @@ export const createProperty = gql`mutation CreateProperty($input: CreateProperty
     room
     type
     creation_date
-    file {
-      bucket
-      region
-      key
-    }
     files
     featuredImage
+    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -48,13 +45,9 @@ export const updateProperty = gql`mutation UpdateProperty($input: UpdateProperty
     room
     type
     creation_date
-    file {
-      bucket
-      region
-      key
-    }
     files
     featuredImage
+    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -76,13 +69,9 @@ export const deleteProperty = gql`mutation DeleteProperty($input: DeleteProperty
     room
     type
     creation_date
-    file {
-      bucket
-      region
-      key
-    }
     files
     featuredImage
+    featuredImageAdminPanel
     featuredProperty
   }
 }

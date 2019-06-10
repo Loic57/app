@@ -1,5 +1,5 @@
 <template>
-  <div class="row-property">
+  <div class="row-property" :class="{ 'is-featured': property.featuredProperty }">
     <div class="row-property__image"><img :src=thumbnail /></div>
     <div class="row-property__content">
       <span class="content__title">{{property.reference}}<br><span>{{property.location}}</span></span>
@@ -93,8 +93,9 @@
       }
     },
     mounted() {
-      Storage.get(`${this.property.id}/${this.property.featuredImage}`)
+      Storage.get(`${this.property.id}/${this.property.featuredImageAdminPanel}`)
         .then((result) => {
+          console.log(result)
           this.thumbnail = result          
         })
         .catch(err => console.log(err));
@@ -123,6 +124,10 @@
     box-shadow: 0 0 23px 0 rgba(0,0,0,0.13);
     border-radius: 8px;
     align-items: center;
+
+    &.is-featured {
+      border: 3px solid #aed000;
+    }
 
       .label-status {
       background-color: #aed000;

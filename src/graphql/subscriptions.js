@@ -18,13 +18,9 @@ export const onCreateProperty = `subscription OnCreateProperty {
     room
     type
     creation_date
-    file {
-      bucket
-      region
-      key
-    }
     files
     featuredImage
+    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -46,13 +42,9 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     room
     type
     creation_date
-    file {
-      bucket
-      region
-      key
-    }
     files
     featuredImage
+    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -74,13 +66,9 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     room
     type
     creation_date
-    file {
-      bucket
-      region
-      key
-    }
     files
     featuredImage
+    featuredImageAdminPanel
     featuredProperty
   }
 }

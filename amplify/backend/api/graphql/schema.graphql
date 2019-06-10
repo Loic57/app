@@ -14,28 +14,8 @@ type Property @model {
   room: Int
   type: [String]
   creation_date: String!
-  file: S3Object
   files: [String]
   featuredImage: String!
+  featuredImageAdminPanel: String!
   featuredProperty: Boolean
-}
-
-enum Visibility {
-  public
-  private
-}
-
-input S3ObjectInput {
-  bucket: String!
-  region: String!
-  localUri: String
-  visibility: Visibility
-  key: String
-  mimeType: String
-}
-
-type S3Object {
-  bucket: String!
-  region: String!
-  key: String!
 }

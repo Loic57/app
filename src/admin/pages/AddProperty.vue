@@ -10,8 +10,10 @@
       </div>
 
       <div class="input">
-        <label><input type="checkbox" name="choix" v-model="featuredProperty" /> Featured ?</label><br>
+        <label><input type="checkbox" name="choix" v-model="featuredProperty" @click="checkFeaturedNumber"/> Featured ?</label><br>
       </div>
+
+      <div class="message" v-if="featuredPropertiesNumberMessage">Il existe déja 3 biens immobiliers en statut "featured", merci de d'abord en annuler un.</div>
 
       <div class="input">
         <label>Type de bien</label><br>
@@ -24,7 +26,7 @@
 
       <div class="input">
         <label>Image</label><br>
-        <input type="file" @change="onFileChanged" multiple>
+        <input type="file" @change="onFileChanged" multiple accept="image/png,image/jpeg">
       </div>
 
       <div class="grid-flex">
@@ -120,6 +122,7 @@
   import { Auth, Storage } from 'aws-amplify';
   import { createProperty } from '../../graphql/mutations';
   import { listPropertys } from '../../graphql/queries';
+  import downscale from 'downscale';
 
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -133,10 +136,14 @@
     },
     data() {
       return {
+        listProperties: [],
+        skipQuery: true,
         filesArray: [],
         filesArrayURL: [],
+        filesArrayNames: [],
         featuredImage: null,
         featuredProperty: false,
+        featuredImageAdminPanel: null,
         filesNamesArray: [],
         id: parseInt(Math.random() * 1000000),
         area: null,
@@ -157,12 +164,39 @@
         arrayType: [],
         creation_date: currentDate,
         indexFeatured: -1,
-        featuredMessage: false
+        featuredMessage: false,
+        featuredPropertiesNumberMessage: false
+      }
+    },
+    apollo: { 
+      properties: { 
+        query: listPropertys,
+        update(data) {
+          return this.listProperties = data.listPropertys.items;
+        },
+        skip() {
+          return this.skipQuery
+        },
       }
     },
     methods: {
-      addProperty() {
+      checkFeaturedNumber() {
+        this.$apollo.queries.properties.skip = false
+        this.$apollo.queries.properties.refetch();
 
+        let arrayFeaturedProperties = []
+
+        for(let i=0;i<this.listProperties.length;i++) {
+          if(this.listProperties[i].featuredProperty) {
+            arrayFeaturedProperties.push(this.listProperties[i]);
+          }
+        }
+
+        if(arrayFeaturedProperties.length >= 3) {
+          this.featuredPropertiesNumberMessage = true
+        }
+      },
+      addProperty() {
         if(this.featuredImage == null) {
           this.featuredMessage = true;
         }
@@ -190,12 +224,13 @@
                 room = parseInt(this.room),
                 type = this.arrayType,
                 creation_date = this.creation_date,
-                bucket = "app4fd3bd165a5f4b1e8fb0c79f167a6567",
-                region = "eu-west-2",
                 key = id,
                 files = this.filesNamesArray,
                 featuredImage = this.featuredImage.name,
-                featuredProperty = this.featuredProperty;
+                featuredProperty = this.featuredProperty,
+                featuredImageAdminPanel = this.featuredImageAdminPanel.name
+
+                
 
           this.$apollo.mutate({
             mutation: createProperty,
@@ -219,11 +254,7 @@
               files,
               featuredProperty,
               featuredImage,
-              file: {
-                bucket,
-                region,
-                key
-              }
+              featuredImageAdminPanel
             }
           },
           update: (store, { data: { createProperty } }) => {
@@ -236,8 +267,16 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
-
-            //upload images
+            
+            //upload miniature qui apparait dans la liste du panneau d'admin
+            Storage.put(`${id}/${this.featuredImageAdminPanel.name}`, this.featuredImageAdminPanel, {
+              contentType: this.featuredImageAdminPanel.type,
+              metadata: { key: this.featuredImageAdminPanel.name },
+              progressCallback(progress) {
+                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+              }
+            })
+            
             for(let i=0;i<this.filesArray.length;i++) {
               Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
                 contentType: this.filesArray[i].type,
@@ -272,7 +311,6 @@
           var blob = this.filesArray[i].slice(0, this.filesArray[i].size, this.filesArray[i].type); 
           var type = this.filesArray[i].type;
           var newType = type.substring(6);
-
           var tempName = this.filesArray[i].name;
           var newFile = new File([blob], tempName, {type:this.filesArray[i].type});
 
@@ -283,70 +321,80 @@
           }
           
           if(i == index) {
+            console.log('ici')
             var tempName = 'featured-' + this.filesArray[i].name; //on donne un nouveau nom à l'image en featured
             var newFile = new File([blob], tempName, {type:this.filesArray[i].type}); //on met le nouveau nom
-            this.featuredImage = this.filesArray[i]; //on attribute à featuredImage le fichier image qui est en feature
+            this.featuredImage = newFile; //on attribute à featuredImage le fichier image qui est en feature
+
             this.indexFeatured = index;
             this.featuredMessage = false;
+
+            this.featuredImageAdminPanel = newFile; //un tableau qui ne contient que l'image featured
           }
 
-          this.filesArray[i] = newFile
+  
+          this.filesArray[i] = newFile //tableau qui contient les images
+    
+          
+          this.filesArrayNames[i] = newFile.name; //tableau qui contient uniquement les noms d'images
+          this.resizeImage(this.filesArray[i]); 
 
-          //this.resizeImage(this.filesArray[i]);
+
+          
         }
+
+        this.resizeFeaturedImageAdminPanel(this.featuredImageAdminPanel);
+
+        
+      },
+      dataURItoBlob(dataURI, index, featuredImageAdminPanelName) {
+        // convert base64 to raw binary data held in a string
+        // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+        var byteString = atob(dataURI.split(',')[1]);
+
+        // separate out the mime component
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+        // write the bytes of the string to an ArrayBuffer
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+
+        // write the ArrayBuffer to a blob, and you're done
+        var blob = new Blob([ab]);
+        if(index == 9999) {
+          var file = new File([blob], featuredImageAdminPanelName, {type:mimeString})
+        }
+        else {
+          var file = new File([blob], this.filesArrayNames[index], {type:mimeString})
+        }
+        
+        return file;
       },
       resizeImage(file) {
-        const width = 500;
-        const height = 300;
-        const fileName = file.name;
-        const fileType = file.type;
+        for(let i=0;i<this.filesArray.length;i++) {
+          downscale(this.filesArray[i], 600, 400).
+          then((dataURL) => {
+            const resizedImage = this.dataURItoBlob(dataURL, i);
+            this.filesArray[i] = resizedImage;
+          })
+        }
+      },
+      resizeFeaturedImageAdminPanel(file) {
+        downscale(file, 228, 152).
+        then((dataURL) => {
+          var featuredImageAdminPanelName = this.featuredImageAdminPanel.name
+          const resizedImage = this.dataURItoBlob(dataURL, 9999, featuredImageAdminPanelName); //fonction qui va convertir la base64 en File object
+          this.featuredImageAdminPanel = resizedImage; //on stock ce File object dans featuredImageAdminPanel
+          var tempName = this.featuredImageAdminPanel.name; 
 
-        const reader = new FileReader(); //create instance filereader
-        reader.readAsDataURL(file); //read input image using filereader
+          var blob = this.featuredImageAdminPanel.slice(0, this.featuredImageAdminPanel.size, this.featuredImageAdminPanel.type); 
+          var newFile = new File([blob], 'adminPanel-' + tempName, {type:'image/jpeg'}); //on change le nom de notre nouvelle image
 
-        reader.onload = event => {
-          const img = new Image(); //Create an instance of Image.
-          img.src = event.target.result; //Set the result of the FileReader as source for the image.
-
-          img.onload = () => {
-            const elem = document.createElement('canvas'); //Create a HTML5 Canvas element
-            const width = 500;
-            const scaleFactor = width / img.width;
-            elem.width = width;
-            elem.height = img.height * scaleFactor;
-
-            const ctx = elem.getContext('2d'); //Create an object that is used to draw graphics on the canvas.
-            
-            ctx.drawImage(img, 0, 0, width, img.height * scaleFactor); // img.width and img.height will contain the original dimensions
-
-            if (!HTMLCanvasElement.prototype.toBlob) {
-              Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
-                value: function (callback, type, quality) {
-                  var dataURL = this.toDataURL(type, quality).split(',')[1];
-                  setTimeout(function() {
-                    var binStr = atob( dataURL ),
-                        len = binStr.length,
-                        arr = new Uint8Array(len);
-                    for (var i = 0; i < len; i++ ) {
-                      arr[i] = binStr.charCodeAt(i);
-                    }
-                    callback( new Blob( [arr], {type: type || 'image/png'} ) );
-                  });
-                }
-              });
-            }
-            else {
-              //const data = ctx.canvas.toDataURL(img, fileType, 1);
-              ctx.canvas.toBlob((blob) => { //Export the canvas as a blob or DataURL by specifying MIME type, image quality.
-                let file = new File([blob], fileName, {
-                  type: fileType,
-                  lastModified: Date.now()
-                });
-              }, fileType, 1);
-            }
-          },
-          reader.onerror = error => console.log(error);
-        };
+          this.featuredImageAdminPanel = newFile; //nouvelle image avec nouveau nom et une taille de 228/152
+        })
       },
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
@@ -356,7 +404,7 @@
             var type = event.target.files[i].type;
             var newType = type.substring(6);
 
-            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + newType, {type:event.target.files[i].type});
+            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + 'jpeg', {type:'image/jpeg'});
 
             this.filesArray.push(newFile); //tableau qui contient fichier img complet
             this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images

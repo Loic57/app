@@ -19,7 +19,8 @@ const router = new VueRouter({
     },
     { 
       path: '/properties', 
-      component: Properties 
+      component: Properties,
+      name: 'properties'
     },
     { 
       path: '/properties/:id', 

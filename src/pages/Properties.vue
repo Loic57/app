@@ -86,13 +86,13 @@
       return {
         properties: [],
         loading: 0,
-        TypeValue: '',
-        StatusValue: '',
+        TypeValue: this.$route.params.TypeValue || '',
+        StatusValue: this.$route.params.StatusValue || '',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
         PriceMinValue: 0,
         PriceMaxValue: 99999999,
-        LocationValue: '',
+        LocationValue: this.$route.params.LocationValue || '',
         PriceRange: {
           "10000":"10000",
           "50000":"50000",
@@ -143,6 +143,22 @@
       properties: { 
         query: listPropertys,
         update(data) {
+          //return data.listPropertys.items;
+
+          this.$apollo.queries.properties.refetch({
+            "filter": {
+              "status": {
+                "contains": this.StatusValue
+              },
+              "location": {
+                "contains": this.LocationValue
+              },
+              "type": {
+                "contains": this.TypeValue
+              }
+            }
+          })
+
           return data.listPropertys.items;
         }
       }

@@ -203,9 +203,7 @@
       },
       featuredFile(index) {
 
-        for(let i=0;i<this.filesArray.length;i++) {
-
-        }
+        
       },
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
