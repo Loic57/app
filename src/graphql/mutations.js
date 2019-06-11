@@ -1,8 +1,7 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 
-import gql from "graphql-tag"
-
+import gql from "graphql-tag";
 
 export const createProperty = gql`mutation CreateProperty($input: CreatePropertyInput!) {
   createProperty(input: $input) {

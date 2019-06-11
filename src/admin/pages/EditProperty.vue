@@ -25,7 +25,7 @@
       </div>
 
       <div class="grid-flex">
-        <div class="column w-20" v-for="(file, index) in filesArray" :key="file.id">
+        <div class="column w-20" v-for="(file, index) in filesArrayURL" :key="file.id">
           <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
             <div class="box-image__visual"><img :src="file" width="200"/></div>
             <div class="box-image__content">
@@ -139,6 +139,21 @@
           }
         },
         update(data) {
+          let index = 0;
+          for(let i=0;i<data.getProperty.files.length;i++) {
+            Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
+            .then((result) => {
+              var size = parseInt(result.Metadata.size); //on récupère la taille de l'image 
+              var blob = new Blob([result.Body], {type: result.Metadata.type}); //on créé un blob
+              var newFile = new File([blob], data.getProperty.files[i], {type:result.Metadata.type}); //qu'on transforme en fichier
+              this.filesArray.push(newFile) //on push ce nouveau fichier dans un tableau
+              this.filesArrayURL.push(URL.createObjectURL(newFile)); //on créé un tableau qui contient les urls de preview des images
+              if(newFile.name.startsWith('featured-')) { //si dans la liste des fichiers on retrouve un nom qui commence par featured alors...
+                this.indexFeatured = i; //indexFeatured pend la valeur de index, ce qui va nous permettre d'y ajouter la classe featured
+              }
+            })
+            .catch(err => console.log(err));
+          }
           return data.getProperty;
         }
       }
@@ -202,8 +217,39 @@
         }
       },
       featuredFile(index) {
-
         
+        for(let i=0;i<this.filesArray.length;i++) {
+
+          var blob = this.filesArray[i].slice(0, this.filesArray[i].size, this.filesArray[i].type); 
+          
+          var tempName = this.filesArray[i].name;
+          var newFile = new File([blob], tempName, {type:this.filesArray[i].type});
+
+          if(this.filesArray[i].name.startsWith('featured-')) { //si l'élément i du tableau a un nom qui commence par featured alors... 
+            console.log('ici')
+            var tempArrayName = this.filesArray[i].name.split('-'); //on divise le nom en deux, à partir du tiret
+            
+            tempArrayName.shift(); //on supprime la première partie
+            newFile = new File([blob], tempArrayName, {type:this.filesArray[i].type}); //on met le nouveau nom
+          }
+          
+          if(i == index) {
+            
+            tempName = 'featured-' + this.filesArray[i].name; //on donne un nouveau nom à l'image en featured
+            newFile = new File([blob], tempName, {type:this.filesArray[i].type}); //on met le nouveau nom
+            this.featuredImage = newFile; //on attribute à featuredImage le fichier image qui est en feature
+
+            this.indexFeatured = index;
+            this.featuredMessage = false;
+
+            this.featuredImageAdminPanel = newFile; //un tableau qui ne contient que l'image featured
+          }
+
+          this.filesArray[i] = newFile //tableau qui contient les images
+      
+          this.filesArrayNames[i] = newFile.name; //tableau qui contient uniquement les noms d'images
+          //this.resizeImage(this.filesArray[i]); 
+        }
       },
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
@@ -224,17 +270,6 @@
         this.address = addressData;
         this.location = this.address.locality;
       }
-    },
-    mounted() {
-      setTimeout(() => {
-        for(let i=0;i<this.property.files.length;i++) {
-          Storage.get(`${this.property.id}/${this.property.files[i]}`)
-            .then((result) => {
-              this.filesArray.push(result)
-            })
-            .catch(err => console.log(err));
-        }
-      }, 500)
     }
   }
 </script>

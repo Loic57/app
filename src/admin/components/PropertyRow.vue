@@ -82,11 +82,15 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then((data) => {
-            for(let i=0;i<data.data.deleteProperty.files.length;i++) {
+            for(let i=0;i<data.data.deleteProperty.files.length;i++) { //on supprime toutes les images
               Storage.remove(`${id}/${data.data.deleteProperty.files[i]}`)
               .then((result) => {console.log(result)})
               .catch(err => console.log(err));
             }
+
+            Storage.remove(`${id}/${data.data.deleteProperty.featuredImageAdminPanel}`) //on supprime l'image miniature qui est dans le panneau d'admin
+            .then((result) => {console.log(result)})
+            .catch(err => console.log(err));
           
         }).catch((error) => {
         })

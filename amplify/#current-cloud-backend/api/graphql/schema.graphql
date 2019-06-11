@@ -1,5 +1,5 @@
 type Property @model {
-  id: ID!
+  id: String!
   area: Int!
   exact_location: String
   location: String
