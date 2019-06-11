@@ -273,31 +273,6 @@
           }
         }).then(() => {
             
-            //upload miniature qui apparait dans la liste du panneau d'admin
-            Storage.put(`${id}/${this.featuredImageAdminPanel.name}`, this.featuredImageAdminPanel, {
-              contentType: this.featuredImageAdminPanel.type,
-              metadata: { 
-                key: this.featuredImageAdminPanel.name,
-                adminPanel: 'adminPanel'
-              },
-              progressCallback(progress) {
-                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-              }
-            })
-
-            //upload de l'image featured
-            Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
-              contentType: this.featuredImage.type,
-              featured: true,
-              metadata: { 
-                key: this.featuredImage.name,
-                featured: 'featured'
-              },
-              progressCallback(progress) {
-                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-              }
-            })
-            
             for(let i=0;i<this.filesArray.length;i++) {
               Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
                 contentType: this.filesArray[i].type,
@@ -310,7 +285,22 @@
                 }
               })
               .then (() => {
-                this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
+                //upload de l'image featured
+                Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
+                  contentType: this.featuredImage.type,
+                  featured: true,
+                  metadata: { 
+                    name: this.featuredImage.name,
+                    featured: 'featured',
+                    size: JSON.stringify(this.featuredImage.size)
+                  },
+                  progressCallback(progress) {
+                    console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+                  }
+                }).then(() => {
+                  this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
+                })
+                
               })
               .catch((err) => {
                 console.log(err)
@@ -331,7 +321,6 @@
       },
       featuredFile(index) {
         for(let i=0;i<this.filesArray.length;i++) {
-          console.log(this.filesArray[i])
           if(i == index) {
             this.indexFeatured = index;
             this.featuredMessage = false;
@@ -340,9 +329,6 @@
           }
           this.resizeImage(this.filesArray[i]); //on redimensionne les images
         }
-
-        console.log(this.filesArray)
-        console.log(this.featuredImage)
       },
       dataURItoBlob(dataURI, index) {
         // convert base64 to raw binary data held in a string
@@ -377,17 +363,13 @@
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
-
             var blob = event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type); 
             var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + 'jpeg', {type:'image/jpeg'});
-
             this.filesArray.push(newFile); //tableau qui contient fichier img complet
             this.filesArrayNames.push(newFile.name)
             this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
           }
         }
-
-        console.log(this.filesArray)
       },
       getAddressData: function (addressData) {
         this.address = addressData;
