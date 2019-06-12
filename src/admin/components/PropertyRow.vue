@@ -87,22 +87,24 @@
               .then((result) => {console.log(result)})
               .catch(err => console.log(err));
             }
-
-            Storage.remove(`${id}/${data.data.deleteProperty.featuredImageAdminPanel}`) //on supprime l'image miniature qui est dans le panneau d'admin
-            .then((result) => {console.log(result)})
-            .catch(err => console.log(err));
-          
         }).catch((error) => {
         })
       }
     },
     mounted() {
-      Storage.get(`${this.property.id}/${this.property.featuredImageAdminPanel}`)
-        .then((result) => {
-          console.log(result)
-          this.thumbnail = result          
+      for(let i=0;i<this.property.files.length;i++) {
+        Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
+        .then((file) => {
+          if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
+            var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
+            var name = file.Metadata.name;
+            var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
+            var newFile = new File([blob], name, {type:file.Metadata.type}); //qu'on transforme en fichier
+            this.thumbnail = URL.createObjectURL(newFile) 
+          }
         })
         .catch(err => console.log(err));
+      }
     }
   }
 </script>

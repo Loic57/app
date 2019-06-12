@@ -2,8 +2,9 @@
   <div class="box-article">
     <div class="box-article__image" v-if="property.featuredProperty">
       <transition>
-        <div class="my-slider"><img :src=file v-for="file in filesArray" :key="file.id" v-show="isLoad" @load="loaded" /></div>
+        <div class="slider"><img :src=file v-for="file in filesArrayURL" :key="file.id" v-show="isLoad" @load="loaded" /></div>
       </transition>
+      
       <div v-show="!isLoad" class="loading"><img src="../assets/loader.gif" alt="" ></div>
     </div>
     <div class="box-article__image" v-else>
@@ -59,6 +60,7 @@
         isLoad: false,
         index: 0,
         filesArray: [],
+        filesArrayURL: [],
         status: this.statusWithoutAll
       }
     },
@@ -85,37 +87,52 @@
     },
     mounted() {
       if(!this.property.featuredProperty) {
-        Storage.get(`${this.property.id}/${this.property.featuredImage}`)
-        .then((file) => {
-          this.thumbnail = file
-        })
+        for(let i=0;i<this.property.files.length;i++) {
+          Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true})
+          .then((file) => {
+            if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
+              var tempFile = this.filesArray[0]
+              this.filesArray[0] = file;
+              this.filesArray[i] = tempFile;
+
+              var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
+              var name = file.Metadata.name;
+              var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
+              var newFile = new File([blob], name, {type:file.Metadata.type}); //qu'on transforme en fichier
+              this.thumbnail = URL.createObjectURL(newFile);
+            }
+          })
+        }
       }
       else {
         for(let i=0;i<this.property.files.length;i++) {
-          Storage.get(`${this.property.id}/${this.property.featuredImage}`)
+          Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true})
           .then((file) => {
-            this.thumbnail = file
-          })
-
-          Storage.get(`${this.property.id}/${this.property.files[i]}`)
-          .then((file) => {
-
             this.filesArray.push(file)
-            if(this.property.files[i].startsWith('featured')) { //cette condition permet d'afficher l'image featured en première position
+
+              var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
+              var name = file.Metadata.name;
+              var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
+              var newFile = new File([blob], name, {type:file.Metadata.type}); //qu'on transforme en fichier
+              this.filesArrayURL.push(URL.createObjectURL(newFile));
+
+            if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
               var tempFile = this.filesArray[0]
               this.filesArray[0] = file;
               this.filesArray[i] = tempFile;
             }
-
+            
             if(this.property.files.length == this.filesArray.length) {
               setTimeout(() => {
-                var slider =  tns({
-                  container: '.my-slider',
-                  items: 1,
-                  slideBy: 'page',
-                  loop: false,
-                  autoplay: false,
-                  controls: false
+                [].forEach.call(document.querySelectorAll('.slider'), function (el) {
+                   tns({
+                    container: el,
+                    items: 1,
+                    slideBy: 'page',
+                    loop: false,
+                    autoplay: false,
+                    controls: false
+                  });
                 });
               }, 500);
             }

@@ -144,7 +144,6 @@
         filesArrayNames: [],
         featuredImage: null,
         featuredProperty: false,
-        featuredImageAdminPanel: null,
         filesNamesArray: [],
         id: uuidv1(),
         area: null,
@@ -232,8 +231,7 @@
                 creation_date = this.creation_date,
                 files = this.filesNamesArray,
                 featuredImage = this.featuredImage.name,
-                featuredProperty = this.featuredProperty,
-                featuredImageAdminPanel = this.featuredImageAdminPanel.name
+                featuredProperty = this.featuredProperty;
 
                 
 
@@ -258,8 +256,6 @@
               creation_date,
               files,
               featuredProperty,
-              featuredImage,
-              featuredImageAdminPanel
             }
           },
           update: (store, { data: { createProperty } }) => {
@@ -272,7 +268,6 @@
             store.writeQuery({ query: listPropertys, data })
           }
         }).then(() => {
-            
             for(let i=0;i<this.filesArray.length;i++) {
               Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
                 contentType: this.filesArray[i].type,
@@ -325,9 +320,8 @@
             this.indexFeatured = index;
             this.featuredMessage = false;
             this.featuredImage = this.filesArray[i];
-            this.featuredImageAdminPanel = this.filesArray[i];
           }
-          this.resizeImage(this.filesArray[i]); //on redimensionne les images
+          //this.resizeImage(this.filesArray[i]); //on redimensionne les images
         }
       },
       dataURItoBlob(dataURI, index) {

@@ -1,7 +1,7 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
 
-import gql from "graphql-tag";
+import gql from "graphql-tag"
 
 export const getProperty = gql`query GetProperty($id: ID!) {
   getProperty(id: $id) {
@@ -21,8 +21,6 @@ export const getProperty = gql`query GetProperty($id: ID!) {
     type
     creation_date
     files
-    featuredImage
-    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -50,8 +48,6 @@ export const listPropertys = gql`query ListPropertys(
       type
       creation_date
       files
-      featuredImage
-      featuredImageAdminPanel
       featuredProperty
     }
     nextToken

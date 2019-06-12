@@ -11,6 +11,10 @@
       </div>
 
       <div class="input">
+        <label><input type="checkbox" name="choix" v-model="featuredProperty"/> Featured ?</label><br>
+      </div>
+
+      <div class="input">
         <label>Type de bien</label><br>
         <select required v-model="property.type">
           <option value="">Sélectionner un type de bien</option>
@@ -122,12 +126,14 @@
     },
     data() {
       return {
+        featuredProperty: false,
         property: [],
         filesArrayURL: [],
         arrayStatus: [],
         arrayType: [],
         filesArray: [],
         indexFeatured: -1,
+        featuredPropertiesNumberMessage: false
       }
     },
     apollo: { 
@@ -142,13 +148,13 @@
           let index = 0;
           for(let i=0;i<data.getProperty.files.length;i++) {
             Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
-            .then((result) => {
-              var size = parseInt(result.Metadata.size); //on récupère la taille de l'image 
-              var blob = new Blob([result.Body], {type: result.Metadata.type}); //on créé un blob
-              var newFile = new File([blob], data.getProperty.files[i], {type:result.Metadata.type}); //qu'on transforme en fichier
+            .then((file) => {
+              var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
+              var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
+              var newFile = new File([blob], data.getProperty.files[i], {type:file.Metadata.type}); //qu'on transforme en fichier
               this.filesArray.push(newFile) //on push ce nouveau fichier dans un tableau
               this.filesArrayURL.push(URL.createObjectURL(newFile)); //on créé un tableau qui contient les urls de preview des images
-              if(newFile.name.startsWith('featured-')) { //si dans la liste des fichiers on retrouve un nom qui commence par featured alors...
+              if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
                 this.indexFeatured = i; //indexFeatured pend la valeur de index, ce qui va nous permettre d'y ajouter la classe featured
               }
             })
@@ -178,7 +184,8 @@
           room = this.property.room,
           type = this.arrayType,
           creation_date = this.property.creation_date,
-          files = this.property.files;
+          files = this.property.files,
+          featuredProperty = this.featuredProperty;
 
         this.$apollo.mutate({
           mutation: updateProperty,
@@ -199,11 +206,44 @@
               room,
               type,
               creation_date,
-              files
+              files,
+              featuredProperty
             }
           }
         }).then((data) => {
-          this.$router.push({ name: 'AdminProperties', params: {propertyUpdated: true} })
+          for(let i=0;i<this.filesArray.length;i++) {
+            Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
+              contentType: this.filesArray[i].type,
+              metadata: { 
+                name: this.filesArray[i].name,
+                size: JSON.stringify(this.filesArray[i].size)
+              },
+              progressCallback(progress) {
+                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+              }
+            })
+            .then (() => {
+              //upload de l'image featured
+              Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
+                contentType: this.featuredImage.type,
+                featured: true,
+                metadata: { 
+                  name: this.featuredImage.name,
+                  featured: 'featured',
+                  size: JSON.stringify(this.featuredImage.size)
+                },
+                progressCallback(progress) {
+                  console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+                }
+              }).then(() => {
+                this.$router.push({ name: 'AdminProperties', params: {propertyUpdated: true} }) //redirect
+              })
+              
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+          }
         }).catch((error) => {
           console.log(error)
         })
@@ -211,7 +251,7 @@
       deleteFile(index) {
         for(let i=0;i<this.filesArray.length;i++) {
           if(i == index) {
-            //this.filesArrayURL.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
+            this.filesArrayURL.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
             this.filesArray.splice(index, 1);
           }
         }
@@ -219,36 +259,13 @@
       featuredFile(index) {
         
         for(let i=0;i<this.filesArray.length;i++) {
-
-          var blob = this.filesArray[i].slice(0, this.filesArray[i].size, this.filesArray[i].type); 
-          
-          var tempName = this.filesArray[i].name;
-          var newFile = new File([blob], tempName, {type:this.filesArray[i].type});
-
-          if(this.filesArray[i].name.startsWith('featured-')) { //si l'élément i du tableau a un nom qui commence par featured alors... 
-            console.log('ici')
-            var tempArrayName = this.filesArray[i].name.split('-'); //on divise le nom en deux, à partir du tiret
-            
-            tempArrayName.shift(); //on supprime la première partie
-            newFile = new File([blob], tempArrayName, {type:this.filesArray[i].type}); //on met le nouveau nom
-          }
-          
           if(i == index) {
-            
-            tempName = 'featured-' + this.filesArray[i].name; //on donne un nouveau nom à l'image en featured
-            newFile = new File([blob], tempName, {type:this.filesArray[i].type}); //on met le nouveau nom
-            this.featuredImage = newFile; //on attribute à featuredImage le fichier image qui est en feature
-
             this.indexFeatured = index;
             this.featuredMessage = false;
-
-            this.featuredImageAdminPanel = newFile; //un tableau qui ne contient que l'image featured
+            this.featuredImage = this.filesArray[i];
+            console.log(this.featuredImage)
           }
-
-          this.filesArray[i] = newFile //tableau qui contient les images
-      
-          this.filesArrayNames[i] = newFile.name; //tableau qui contient uniquement les noms d'images
-          //this.resizeImage(this.filesArray[i]); 
+          //this.resizeImage(this.filesArray[i]); //on redimensionne les images
         }
       },
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file

@@ -19,8 +19,6 @@ export const onCreateProperty = `subscription OnCreateProperty {
     type
     creation_date
     files
-    featuredImage
-    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -43,8 +41,6 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     type
     creation_date
     files
-    featuredImage
-    featuredImageAdminPanel
     featuredProperty
   }
 }
@@ -67,8 +63,6 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     type
     creation_date
     files
-    featuredImage
-    featuredImageAdminPanel
     featuredProperty
   }
 }
