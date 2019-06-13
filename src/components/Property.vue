@@ -59,19 +59,11 @@
         thumbnail: null,
         isLoad: false,
         index: 0,
-        filesArray: [],
         filesArrayURL: [],
         status: this.statusWithoutAll
       }
     },
     methods: {
-      loadImg() {
-        this.isLoad = false
-        this.$nextTick(() => {
-          this.url = this.filesArray[this.index];
-          this.index = (this.index < this.filesArray.length - 1) ? this.index + 1 : 0
-        })
-      },
       loaded() {
         this.isLoad = true
       },
@@ -87,13 +79,12 @@
     },
     mounted() {
       if(!this.property.featuredProperty) {
+        console.log('ici')
         for(let i=0;i<this.property.files.length;i++) {
           Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true})
           .then((file) => {
             if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
               var tempFile = this.filesArray[0]
-              this.filesArray[0] = file;
-              this.filesArray[i] = tempFile;
 
               var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
               var name = file.Metadata.name;
@@ -108,21 +99,13 @@
         for(let i=0;i<this.property.files.length;i++) {
           Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true})
           .then((file) => {
-            this.filesArray.push(file)
+            var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
+            var name = file.Metadata.name;
+            var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
+            var newFile = new File([blob], name, {type:file.Metadata.type}); //qu'on transforme en fichier
+            this.filesArrayURL.push(URL.createObjectURL(newFile));
 
-              var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
-              var name = file.Metadata.name;
-              var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
-              var newFile = new File([blob], name, {type:file.Metadata.type}); //qu'on transforme en fichier
-              this.filesArrayURL.push(URL.createObjectURL(newFile));
-
-            if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
-              var tempFile = this.filesArray[0]
-              this.filesArray[0] = file;
-              this.filesArray[i] = tempFile;
-            }
-            
-            if(this.property.files.length == this.filesArray.length) {
+            if(this.property.files.length == this.filesArrayURL.length) {
               setTimeout(() => {
                 [].forEach.call(document.querySelectorAll('.slider'), function (el) {
                    tns({

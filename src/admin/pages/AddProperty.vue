@@ -281,9 +281,9 @@
               })
               .then (() => {
                 //upload de l'image featured
+                console.log(this.featuredImage)
                 Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
                   contentType: this.featuredImage.type,
-                  featured: true,
                   metadata: { 
                     name: this.featuredImage.name,
                     featured: 'featured',
