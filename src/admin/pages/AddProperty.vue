@@ -269,33 +269,36 @@
           }
         }).then(() => {
             for(let i=0;i<this.filesArray.length;i++) {
-              Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
-                contentType: this.filesArray[i].type,
+              //upload de l'image featured
+              Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
+                contentType: this.featuredImage.type,
                 metadata: { 
-                  name: this.filesArray[i].name,
-                  size: JSON.stringify(this.filesArray[i].size)
+                  name: this.featuredImage.name,
+                  featured: 'featured',
+                  size: JSON.stringify(this.featuredImage.size)
                 },
                 progressCallback(progress) {
                   console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
                 }
               })
               .then (() => {
-                //upload de l'image featured
-                console.log(this.featuredImage)
-                Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
-                  contentType: this.featuredImage.type,
-                  metadata: { 
-                    name: this.featuredImage.name,
-                    featured: 'featured',
-                    size: JSON.stringify(this.featuredImage.size)
-                  },
-                  progressCallback(progress) {
-                    console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                  }
-                }).then(() => {
-                  this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
-                })
-                
+                //et ensuite de toutes les autres images
+                if(this.filesArray[i].name != this.featuredImage.name) {
+                  
+                  Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
+                    contentType: this.filesArray[i].type,
+                    metadata: { 
+                      name: this.filesArray[i].name,
+                      size: JSON.stringify(this.filesArray[i].size)
+                    },
+                    progressCallback(progress) {
+                      console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+                    }
+                  
+                  }).then(() => {
+                    this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
+                  })
+                }
               })
               .catch((err) => {
                 console.log(err)

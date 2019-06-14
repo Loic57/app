@@ -19,7 +19,7 @@
       <p class="content__location">{{property.location}}</p>
 
       <p class="content__price">
-        <span v-if="removeStatusAll() === 'louer'"> {{property.price}} € / mois</span>
+        <span v-if="removeStatusAll() === 'louer' || removeStatusAll() === 'viager'"> {{property.price}} € / mois</span>
         <span v-if="removeStatusAll() === 'acheter'"> {{property.price}} €</span>
         <span class="label-status">{{removeStatusAll()}}</span>
       </p>
@@ -40,7 +40,6 @@
 </template>
 
 <script>
-
   import { Auth, Storage } from 'aws-amplify';
   import { tns } from 'tiny-slider/src/tiny-slider'
   import style  from 'tiny-slider/dist/tiny-slider.css'
@@ -59,6 +58,7 @@
         thumbnail: null,
         isLoad: false,
         index: 0,
+        filesArray: [],
         filesArrayURL: [],
         status: this.statusWithoutAll
       }
@@ -79,7 +79,6 @@
     },
     mounted() {
       if(!this.property.featuredProperty) {
-        console.log('ici')
         for(let i=0;i<this.property.files.length;i++) {
           Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true})
           .then((file) => {
@@ -99,16 +98,29 @@
         for(let i=0;i<this.property.files.length;i++) {
           Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true})
           .then((file) => {
-            var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
-            var name = file.Metadata.name;
-            var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
-            var newFile = new File([blob], name, {type:file.Metadata.type}); //qu'on transforme en fichier
-            this.filesArrayURL.push(URL.createObjectURL(newFile));
+            this.filesArray.push(file) //on push ce nouveau fichier dans un tableau filesArray
 
-            if(this.property.files.length == this.filesArrayURL.length) {
+            if(this.filesArray.length == this.property.files.length) {
+              for(let i=0;i<this.filesArray.length;i++) {
+                if(this.filesArray[i].Metadata.featured === 'featured') {
+                  var tempFile = this.filesArray[0];
+                  var newFile = this.filesArray[i];
+                  this.filesArray[0] = newFile;
+                  this.filesArray[i] = tempFile;
+                }
+              }
+
+              for(let i=0;i<this.filesArray.length;i++) {
+                var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
+                var name = this.filesArray[i].Metadata.name;
+                var blob = new Blob([this.filesArray[i].Body], {type: this.filesArray[i].Metadata.type}); //on créé un blob
+                var newFile = new File([blob], name, {type:this.filesArray[i].Metadata.type}); //qu'on transforme en fichier
+                this.filesArrayURL.push(URL.createObjectURL(newFile));
+              } 
+            
               setTimeout(() => {
                 [].forEach.call(document.querySelectorAll('.slider'), function (el) {
-                   tns({
+                    tns({
                     container: el,
                     items: 1,
                     slideBy: 'page',

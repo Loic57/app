@@ -6,15 +6,15 @@
       <form v-on:submit.prevent>
 
         <div class="input">
-          <label><input type="radio" name="choix" v-model="StatusValue" value="all" @change="updateQuery()" /> Tout </label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="acheter" @change="updateQuery()" /> Acheter</label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="louer" @change="updateQuery()" /> Louer</label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="viager" @change="updateQuery()" /> Viager </label>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="all" /> Tout </label><br>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="acheter" /> Acheter</label><br>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="louer" /> Louer</label><br>
+          <label><input type="radio" name="choix" v-model="StatusValue" value="viager" /> Viager </label>
         </div>
 
         <div class="input">
           <label>Type de bien</label><br>
-          <select v-model="TypeValue" @change="updateQuery()">
+          <select v-model="TypeValue">
             <option value="" :selected="true">Sélectionner un type de bien</option>
             <option value="all">Tous</option>
             <option value="Maison">Maison</option>
@@ -24,11 +24,11 @@
 
         <div class="input">
           <label>Surface en m²</label><br>
-          <select v-model="AreaMinValue" @change="updateQuery()">
+          <select v-model="AreaMinValue">
             <option :selected="true" disabled>Min</option>
             <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
           </select>
-          <select v-model="AreaMaxValue" @change="updateQuery()">
+          <select v-model="AreaMaxValue">
             <option :selected="true" disabled>Max</option>
             <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
           </select>
@@ -36,11 +36,11 @@
 
         <div class="input">
           <label>Prix</label><br>
-          <select v-model="PriceMinValue" id="PriceMin" @change="updateQuery()">
+          <select v-model="PriceMinValue" id="PriceMin">
             <option value="" :selected="true">Min</option>
             <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
           </select>
-          <select v-model="PriceMaxValue" id="PriceMax" @change="updateQuery()">
+          <select v-model="PriceMaxValue" id="PriceMax">
             <option value="" :selected="true">Max</option>
             <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
           </select>
@@ -56,7 +56,7 @@
             types="(cities)"
             country="be"
             v-model="LocationValue"
-            @change="updateQuery()"
+           
         >
         </vue-google-autocomplete>
         {{LocationValue}}
@@ -86,8 +86,8 @@
       return {
         properties: [],
         loading: 0,
-        TypeValue: this.$route.params.TypeValue || '',
-        StatusValue: this.$route.params.StatusValue || '',
+        TypeValue: this.$route.params.TypeValue || 'all',
+        StatusValue: this.$route.params.StatusValue || 'all',
         AreaMinValue: 0,
         AreaMaxValue: 999999,
         PriceMinValue: 0,
@@ -142,78 +142,55 @@
     apollo: { 
       properties: { 
         query: listPropertys,
+        variables() {
+          if(this.LocationValue == '') {
+            return {
+              "filter": {
+                "status": {
+                  "contains": this.StatusValue
+                },
+                "area": {
+                  "ge": this.AreaMinValue, 
+                  "le": this.AreaMaxValue
+                },
+                "price": {
+                  "ge": this.PriceMinValue, 
+                  "le": this.PriceMaxValue
+                },
+                "type": {
+                  "contains": this.TypeValue
+                },
+              }
+            }
+          }
+          else {
+            return {
+              "filter": {
+                "status": {
+                  "contains": this.StatusValue
+                },
+                "area": {
+                  "ge": this.AreaMinValue, 
+                  "le": this.AreaMaxValue
+                },
+                "price": {
+                  "ge": this.PriceMinValue, 
+                  "le": this.PriceMaxValue
+                },
+                "type": {
+                  "contains": this.TypeValue
+                },
+                "location": {
+                  "contains": this.LocationValue
+                },
+              }
+            }
+          }
+        },
         update(data) {
-          //return data.listPropertys.items;
-
-          if(this.TypeValue == "" && this.StatusValue == "" && this.LocationValue == "") {
-            return data.listPropertys.items;
-          }
-          else if(this.TypeValue == "" && this.StatusValue == "") {
-            this.$apollo.queries.properties.refetch({
-              "filter": {
-                "location": {
-                  "contains": this.LocationValue
-                }
-              }
-            })
-          }
-          else if(this.TypeValue == "" && this.LocationValue == "") {
-            this.$apollo.queries.properties.refetch({
-              "filter": {
-                "status": {
-                  "contains": this.StatusValue
-                }
-              }
-            })
-          }
-          else if(this.StatusValue == "" && this.LocationValue == "") {
-            this.$apollo.queries.properties.refetch({
-              "filter": {
-                "type": {
-                  "contains": this.TypeValue
-                }
-              }
-            })
-          }
-          else if(this.TypeValue == "") {
-            this.$apollo.queries.properties.refetch({
-              "filter": {
-                "status": {
-                  "contains": this.StatusValue
-                },
-                "location": {
-                  "contains": this.LocationValue
-                }
-              }
-            })
-          }
-          else if(this.LocationValue == "") {
-            this.$apollo.queries.properties.refetch({
-              "filter": {
-                "status": {
-                  "contains": this.StatusValue
-                },
-                "type": {
-                  "contains": this.TypeValue
-                }
-              }
-            })
-          }
-          else if(this.StatusValue == "") {
-            this.$apollo.queries.properties.refetch({
-              "filter": {
-                "type": {
-                  "contains": this.TypeValue
-                },
-                "location": {
-                  "contains": this.LocationValue
-                }
-              }
-            })
-          }
-
-          return data.listPropertys.items;
+          return data.listPropertys.items
         }
+
       }
     },
     mounted() {
@@ -222,156 +199,6 @@
       this.$refs.address.focus();
     },
     methods: {
-      updateQuery() {
-        if(this.TypeValue == "" && this.StatusValue == "" && this.LocationValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else if(this.TypeValue == "" && this.StatusValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "location": {
-                "contains": this.LocationValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else if(this.TypeValue == "" && this.LocationValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "status": {
-                "contains": this.StatusValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else if(this.StatusValue == "" && this.LocationValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "type": {
-                "contains": this.TypeValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else if(this.TypeValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "location": {
-                "contains": this.LocationValue
-              },
-              "status": {
-                "contains": this.StatusValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else if(this.LocationValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "status": {
-                "contains": this.StatusValue
-              },
-              "type": {
-                "contains": this.TypeValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else if(this.StatusValue == "") {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "location": {
-                "contains": this.LocationValue
-              },
-              "type": {
-                "contains": this.TypeValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-        else {
-          this.$apollo.queries.properties.refetch({
-            "filter": {
-              "type": {
-                "contains": this.TypeValue
-              },
-              "status": {
-                "contains": this.StatusValue
-              },
-              "location": {
-                "contains": this.LocationValue
-              },
-              "area": {
-                "ge": this.AreaMinValue, 
-                "le": this.AreaMaxValue
-              },
-              "price": {
-                "ge": this.PriceMinValue, 
-                "le": this.PriceMaxValue
-              }
-            }
-          })
-        }
-      },
       getAddressData: function (addressData, placeResultData, id) {
         this.address = addressData;
         this.LocationValue = this.address.locality;

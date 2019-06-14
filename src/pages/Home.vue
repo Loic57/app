@@ -67,15 +67,17 @@
     apollo: { 
       properties: { 
         query: listPropertys,
-        update(data) {
-          this.$apollo.queries.properties.refetch({
+        variables() {
+          return {
             "filter": {
               "featuredProperty": {
                 "eq": true
               }
             }
-          })
-          return data.listPropertys.items;
+          }
+        },
+        update(data) {
+          return data.listPropertys.items; 
         }
       }
     },

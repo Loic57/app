@@ -5,7 +5,6 @@ import VueRouter from 'vue-router'
 import router from './routes'
 import Amplify, * as AmplifyModules from 'aws-amplify'
 import { AmplifyPlugin } from 'aws-amplify-vue'
-import { InMemoryCache } from 'apollo-cache-inmemory'
 import awsmobile from './aws-exports'
 import AWSAppSyncClient from 'aws-appsync'
 import reset from './scss/reset.scss'
@@ -17,7 +16,7 @@ const client = new AWSAppSyncClient({
   region: "eu-west-2",
   auth: {
     type: "API_KEY",
-    apiKey: "da2-fpo3zm3ry5bprkc35gakjy4n3y",
+    apiKey: "da2-thg6rjpavjbcdjlun4dnxobvci",
   },
   Storage: {
     AWSS3: {
@@ -28,13 +27,11 @@ const client = new AWSAppSyncClient({
   disableOffline: true
 });
 
-// Cache implementation
-const cache = new InMemoryCache()
 
 
 const apolloProvider = new VueApollo({
   defaultClient: client,
-  cache
+  connectToDevTools: true,
 })
 
 

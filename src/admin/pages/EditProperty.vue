@@ -5,9 +5,9 @@
     <form @submit.prevent="editProperty">
       <!-- :checked="property.status[1] === 'viager'" -->
       <div class="input">
-        <label><input type="radio" v-model="property.status" name="choix" value="acheter" /> Acheter</label><br>
-        <label><input type="radio" v-model="property.status" name="choix" value="louer" /> Louer</label><br>
-        <label><input type="radio" v-model="property.status" name="choix" value="viager" /> Viager</label><br>
+        <label><input type="radio" v-model="status" name="choix" value="acheter" /> Acheter</label><br>
+        <label><input type="radio" v-model="status" name="choix" value="louer" /> Louer</label><br>
+        <label><input type="radio" v-model="status" name="choix" value="viager" /> Viager</label><br>
       </div>
 
       <div class="input">
@@ -16,7 +16,7 @@
 
       <div class="input">
         <label>Type de bien</label><br>
-        <select required v-model="property.type">
+        <select required v-model="type">
           <option value="">Sélectionner un type de bien</option>
           <option value="Maison">Maison</option>
           <option value="Appartement">Appartement</option>
@@ -127,10 +127,12 @@
     data() {
       return {
         featuredProperty: false,
+        featuredImage: '',
+        filesArrayNames: [],
+        status: '',
         property: [],
         filesArrayURL: [],
-        arrayStatus: [],
-        arrayType: [],
+        type: '',
         filesArray: [],
         indexFeatured: -1,
         featuredPropertiesNumberMessage: false
@@ -145,36 +147,51 @@
           }
         },
         update(data) {
-          let index = 0;
+          this.property = data.getProperty;
+          this.type = this.property.type[1];
+          this.featuredProperty = this.property.featuredProperty;
+          this.status = this.property.status[1];
+          
           for(let i=0;i<data.getProperty.files.length;i++) {
             Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
             .then((file) => {
-              var size = parseInt(file.Metadata.size); //on récupère la taille de l'image 
-              var blob = new Blob([file.Body], {type: file.Metadata.type}); //on créé un blob
-              var newFile = new File([blob], data.getProperty.files[i], {type:file.Metadata.type}); //qu'on transforme en fichier
-              this.filesArray.push(newFile) //on push ce nouveau fichier dans un tableau
-              this.filesArrayURL.push(URL.createObjectURL(newFile)); //on créé un tableau qui contient les urls de preview des images
-              if(file.Metadata.featured === 'featured') { //si dans la liste des fichiers on retrouve un fichier qui a la metadata featured alors...
-                this.indexFeatured = i; //indexFeatured pend la valeur de index, ce qui va nous permettre d'y ajouter la classe featured
+              this.filesArray.push(file)
+              if(this.filesArray.length == data.getProperty.files.length) {
+                for(let i=0;i<this.filesArray.length;i++) {
+                  if(this.filesArray[i].Metadata.featured === 'featured') {
+                    this.indexFeatured = i //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
+                  }
+                }
+
+                for(let i=0;i<this.filesArray.length;i++) {
+                  var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
+                  var name = this.filesArray[i].Metadata.name;
+                  var blob = new Blob([this.filesArray[i].Body], {type: this.filesArray[i].Metadata.type}); //on créé un blob
+                  var newFile = new File([blob], name, {type:this.filesArray[i].Metadata.type}); //qu'on transforme en fichier
+                  this.filesArray[i] = newFile;
+                  this.filesArrayNames.push(newFile.name)
+                  this.filesArrayURL.push(URL.createObjectURL(newFile));
+                }
               }
             })
             .catch(err => console.log(err));
           }
+
+          console.log(this.filesArray)
+  
           return data.getProperty;
         }
       }
     },
     methods: {
       editProperty() {
-        this.arrayStatus.push('all', this.property.status);
-        this.arrayType.push('all', this.property.type);
 
         const id = this.property.id,
           area = this.property.area,
           exact_location = this.property.exact_location,
           location = this.location,
           price = this.property.price,
-          status = this.arrayStatus,
+          status = ['all', this.status],
           title = this.property.title,
           bathroom = this.property.bathroom,
           bedroom = this.property.bedroom,
@@ -182,9 +199,10 @@
           parking = this.property.parking,
           reference = this.property.reference,
           room = this.property.room,
-          type = this.arrayType,
+          type = ['all', this.type],
           creation_date = this.property.creation_date,
-          files = this.property.files,
+          files = this.filesArrayNames,
+          featuredImage = this.featuredImage,
           featuredProperty = this.featuredProperty;
 
         this.$apollo.mutate({
@@ -257,7 +275,6 @@
         }
       },
       featuredFile(index) {
-        
         for(let i=0;i<this.filesArray.length;i++) {
           if(i == index) {
             this.indexFeatured = index;
