@@ -20,6 +20,10 @@ export const onCreateProperty = `subscription OnCreateProperty {
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;
@@ -42,6 +46,10 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;
@@ -64,6 +72,10 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;

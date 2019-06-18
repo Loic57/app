@@ -1,5 +1,6 @@
 // eslint-disable
 // this is an auto generated file. This will be overwritten
+
 import gql from "graphql-tag"
 
 export const createProperty = gql`mutation CreateProperty($input: CreatePropertyInput!) {
@@ -21,6 +22,10 @@ export const createProperty = gql`mutation CreateProperty($input: CreateProperty
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;
@@ -43,6 +48,10 @@ export const updateProperty = gql`mutation UpdateProperty($input: UpdateProperty
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;
@@ -65,6 +74,10 @@ export const deleteProperty = gql`mutation DeleteProperty($input: DeleteProperty
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;

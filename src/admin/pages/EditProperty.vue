@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1>Editer le bien  {{property.reference}} </h1> 
-
+    <Spinner v-if="spinner" />
     <form @submit.prevent="editProperty">
       <!-- :checked="property.status[1] === 'viager'" -->
       <div class="input">
@@ -106,6 +106,39 @@
         <input type="text" v-model="property.reference" required>
       </div>
 
+      <br><br>
+
+      <h2>PEB</h2>
+
+      <div class="input">
+        <label>PEB No</label><br>
+        <input type="text" v-model="property.pebNumber" required>
+      </div>
+
+      <div class="input">
+        <label>PEB Letter</label><br>
+        <select v-model="property.pebImage" required>
+          <option value="" :selected="true">Sélectionner un type de bien</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="G">G</option>
+        </select>
+      </div>
+
+      <div class="input">
+        <label>E spec (kWh/m².an)</label><br>
+        <input type="text" v-model="property.eSpec" required>
+      </div>
+
+      <div class="input">
+        <label>E totale (kWh/an)</label><br>
+        <input type="text" v-model="property.eTotale" required>
+      </div>
+
       <input type="hidden" v-model="property.id">
       <input type="hidden" v-model="property.creation_date">
 
@@ -118,17 +151,22 @@
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
   import { updateProperty } from '../../graphql/mutations';
   import { getProperty } from '../../graphql/queries';
-  import { Auth, Storage } from 'aws-amplify';
+  import { Storage } from 'aws-amplify';
+  import Spinner from '../../components/Spinner'
+
+
   export default {
     name: 'EditProperty',
     components: {
-      VueGoogleAutocomplete
+      VueGoogleAutocomplete,
+      Spinner
     },
     data() {
       return {
+        spinner: false,
         featuredProperty: false,
         featuredImage: '',
-        filesArrayNames: [],
+        filesNamesArray: [],
         status: '',
         property: [],
         filesArrayURL: [],
@@ -141,6 +179,7 @@
     apollo: { 
       property: { 
         query: getProperty,
+        fetchPolicy: 'no-cache',
         variables() {
           return {
             id: this.$route.params.id
@@ -151,41 +190,48 @@
           this.type = this.property.type[1];
           this.featuredProperty = this.property.featuredProperty;
           this.status = this.property.status[1];
+          this.createFilesArray(data)
+
           
-          for(let i=0;i<data.getProperty.files.length;i++) {
-            Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
-            .then((file) => {
-              this.filesArray.push(file)
-              if(this.filesArray.length == data.getProperty.files.length) {
-                for(let i=0;i<this.filesArray.length;i++) {
-                  if(this.filesArray[i].Metadata.featured === 'featured') {
-                    this.indexFeatured = i //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
-                  }
-                }
 
-                for(let i=0;i<this.filesArray.length;i++) {
-                  var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
-                  var name = this.filesArray[i].Metadata.name;
-                  var blob = new Blob([this.filesArray[i].Body], {type: this.filesArray[i].Metadata.type}); //on créé un blob
-                  var newFile = new File([blob], name, {type:this.filesArray[i].Metadata.type}); //qu'on transforme en fichier
-                  this.filesArray[i] = newFile;
-                  this.filesArrayNames.push(newFile.name)
-                  this.filesArrayURL.push(URL.createObjectURL(newFile));
-                }
-              }
-            })
-            .catch(err => console.log(err));
-          }
-
-          console.log(this.filesArray)
-  
           return data.getProperty;
         }
       }
     },
     methods: {
-      editProperty() {
+      async createFilesArray(data) {
+        for(let i=0;i<data.getProperty.files.length;i++) {
+          await Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
+          .then((file) => {
+            this.filesArray.push(file)
+            if(this.filesArray.length == data.getProperty.files.length) {
+              for(let i=0;i<this.filesArray.length;i++) {
+                if(this.filesArray[i].Metadata.featured === 'featured') {
+                  this.indexFeatured = i //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
+                  this.featuredImage = this.filesArray[i]
+                }
+                
+              }
 
+              for(let i=0;i<this.filesArray.length;i++) {
+                var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
+                var name = this.filesArray[i].Metadata.name;
+                var blob = new Blob([this.filesArray[i].Body], {type: this.filesArray[i].Metadata.type}); //on créé un blob
+                var newFile = new File([blob], name, {type:this.filesArray[i].Metadata.type}); //qu'on transforme en fichier
+                this.filesArray[i] = newFile;
+                this.filesNamesArray.push(newFile.name)
+                this.filesArrayURL.push(URL.createObjectURL(newFile));
+              }
+            }
+          })
+          .catch(err => console.log(err));
+        }
+
+        var blob = new Blob([this.featuredImage.Body], {type: this.featuredImage.Metadata.type})
+        this.featuredImage = new File([blob], this.featuredImage.Metadata.name, {type:this.featuredImage.Metadata.type});
+
+      },
+      editProperty() {
         const id = this.property.id,
           area = this.property.area,
           exact_location = this.property.exact_location,
@@ -201,7 +247,7 @@
           room = this.property.room,
           type = ['all', this.type],
           creation_date = this.property.creation_date,
-          files = this.filesArrayNames,
+          files = this.filesNamesArray,
           featuredImage = this.featuredImage,
           featuredProperty = this.featuredProperty;
 
@@ -229,39 +275,37 @@
             }
           }
         }).then((data) => {
-          for(let i=0;i<this.filesArray.length;i++) {
-            Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
-              contentType: this.filesArray[i].type,
-              metadata: { 
-                name: this.filesArray[i].name,
-                size: JSON.stringify(this.filesArray[i].size)
-              },
-              progressCallback(progress) {
-                console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+   
+          this.spinner = true;
+          Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
+            contentType: this.featuredImage.type,
+            featured: true,
+            metadata: { 
+              name: this.featuredImage.name,
+              featured: 'featured',
+              size: JSON.stringify(this.featuredImage.size)
+            }
+          })
+          .then (() => {
+            console.log('ici')
+            for(let i=0;i<this.filesArray.length;i++) {
+              if(this.filesArray[i].name != this.featuredImage.name) {
+                Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
+                  contentType: this.filesArray[i].type,
+                  metadata: { 
+                    name: this.filesArray[i].name,
+                    size: JSON.stringify(this.filesArray[i].size)
+                  }
+                }).then(() => {
+                  this.$router.push({ name: 'AdminProperties', params: {propertyUpdated: true} }) //redirect
+                })
               }
-            })
-            .then (() => {
-              //upload de l'image featured
-              Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
-                contentType: this.featuredImage.type,
-                featured: true,
-                metadata: { 
-                  name: this.featuredImage.name,
-                  featured: 'featured',
-                  size: JSON.stringify(this.featuredImage.size)
-                },
-                progressCallback(progress) {
-                  console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                }
-              }).then(() => {
-                this.$router.push({ name: 'AdminProperties', params: {propertyUpdated: true} }) //redirect
-              })
-              
-            })
-            .catch((err) => {
-              console.log(err)
-            })
-          }
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          
         }).catch((error) => {
           console.log(error)
         })
@@ -280,7 +324,6 @@
             this.indexFeatured = index;
             this.featuredMessage = false;
             this.featuredImage = this.filesArray[i];
-            console.log(this.featuredImage)
           }
           //this.resizeImage(this.filesArray[i]); //on redimensionne les images
         }

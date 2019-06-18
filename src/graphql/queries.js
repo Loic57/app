@@ -3,6 +3,7 @@
 
 import gql from "graphql-tag"
 
+
 export const getProperty = gql`query GetProperty($id: ID!) {
   getProperty(id: $id) {
     id
@@ -22,6 +23,10 @@ export const getProperty = gql`query GetProperty($id: ID!) {
     creation_date
     files
     featuredProperty
+    pebImage
+    pebNumber
+    eSpec
+    eTotale
   }
 }
 `;
@@ -49,6 +54,10 @@ export const listPropertys = gql`query ListPropertys(
       creation_date
       files
       featuredProperty
+      pebImage
+      pebNumber
+      eSpec
+      eTotale
     }
     nextToken
   }

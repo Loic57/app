@@ -15,5 +15,10 @@ type Property @model {
   type: [String]
   creation_date: String!
   files: [String]
-  featuredProperty: Boolean
+  featuredProperty: Boolean,
+  pebImage: String,
+  pebNumber: String,
+  pebLetter: String,
+  eSpec: Int,
+  eTotale: Int
 }

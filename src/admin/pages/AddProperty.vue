@@ -1,7 +1,8 @@
 <template>
   <div class="container">
     <h1>Ajouter un bien immobilier</h1>
-
+    <Spinner v-if="spinner" />
+    
     <form @submit.prevent="addProperty">
       <div class="input">
         <label><input type="radio" name="choix" v-model="status" value="acheter" selected="selected"/> Acheter</label><br>
@@ -109,6 +110,39 @@
         <input type="text" v-model="reference" required>
       </div>
 
+      <br><br>
+
+      <h2>PEB</h2>
+
+      <div class="input">
+        <label>PEB No</label><br>
+        <input type="text" v-model="pebNumber" required>
+      </div>
+
+      <div class="input">
+        <label>PEB Letter</label><br>
+        <select v-model="pebImage" required>
+          <option value="" :selected="true">Sélectionner un type de bien</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="G">G</option>
+        </select>
+      </div>
+
+      <div class="input">
+        <label>E spec (kWh/m².an)</label><br>
+        <input type="text" v-model="eSpec" required>
+      </div>
+
+      <div class="input">
+        <label>E totale (kWh/an)</label><br>
+        <input type="text" v-model="eTotale" required>
+      </div>
+
       <input type="hidden" v-model="id">
       <input type="hidden" v-model="creation_date">
 
@@ -124,6 +158,8 @@
   import { listPropertys } from '../../graphql/queries';
   import downscale from 'downscale';
   import uuidv1 from 'uuid/v1'
+  import Spinner from '../../components/Spinner'
+  
 
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -133,10 +169,16 @@
   export default {
     name: 'addProperty',
     components: {
-      VueGoogleAutocomplete
+      VueGoogleAutocomplete,
+      Spinner
     },
     data() {
       return {
+        eTotale: '',
+        pebNumber: '',
+        pebImage: '',
+        eSpec: '',
+        spinner: false,
         listProperties: [],
         skipQuery: true,
         filesArray: [],
@@ -199,8 +241,10 @@
         return arrayFeaturedProperties.length
       },
       addProperty() {
+        this.spinner = true;
         if(this.featuredImage == null) {
           this.featuredMessage = true;
+          this.spinner = false;
         }
         else if(this.featuredProperty && this.checkFeaturedNumber() >= 3) {
           this.featuredPropertiesNumberMessage = true
@@ -209,6 +253,8 @@
           this.arrayLocation.push('all', this.location);
           this.arrayStatus.push('all', this.status);
           this.arrayType.push('all', this.type);
+
+          console.log(this.filesArray)
 
           for(let i=0;i<this.filesArray.length;i++) {
             this.filesNamesArray.push(this.filesArray[i].name)
@@ -231,7 +277,12 @@
                 creation_date = this.creation_date,
                 files = this.filesNamesArray,
                 featuredImage = this.featuredImage.name,
-                featuredProperty = this.featuredProperty;
+                featuredProperty = this.featuredProperty,
+                eTotale = this.eTotale,
+                pebNumber = this.pebNumber,
+                pebImage = this.pebImage,
+                eSpec = this.eSpec;
+                
 
                 
 
@@ -256,6 +307,10 @@
               creation_date,
               files,
               featuredProperty,
+              eTotale,
+              pebNumber,
+              pebImage,
+              eSpec
             }
           },
           update: (store, { data: { createProperty } }) => {
@@ -276,25 +331,17 @@
                   name: this.featuredImage.name,
                   featured: 'featured',
                   size: JSON.stringify(this.featuredImage.size)
-                },
-                progressCallback(progress) {
-                  console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
                 }
               })
               .then (() => {
                 //et ensuite de toutes les autres images
                 if(this.filesArray[i].name != this.featuredImage.name) {
-                  
                   Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
                     contentType: this.filesArray[i].type,
                     metadata: { 
                       name: this.filesArray[i].name,
                       size: JSON.stringify(this.filesArray[i].size)
-                    },
-                    progressCallback(progress) {
-                      console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
                     }
-                  
                   }).then(() => {
                     this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
                   })
@@ -306,6 +353,7 @@
             }
           }).catch((error) => {
             console.log(error)
+            this.spinner = false;
           })
         }
       },

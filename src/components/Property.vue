@@ -34,6 +34,15 @@
         <div class="column info-house">
           <img src="../assets/bed.svg" alt="" > <span>{{property.bedroom}}</span>
         </div>
+        <div class="column info-peb">
+          <span v-if="property.pebImage === 'A'"><img src="../assets/peb_a.png"></span>
+          <span v-if="property.pebImage === 'B'"><img src="../assets/peb_b.png"></span>
+          <span v-if="property.pebImage === 'C'"><img src="../assets/peb_c.png"></span>
+          <span v-if="property.pebImage === 'D'"><img src="../assets/peb_d.png"></span>
+          <span v-if="property.pebImage === 'E'"><img src="../assets/peb_e.png"></span>
+          <span v-if="property.pebImage === 'F'"><img src="../assets/peb_f.png"></span>
+          <span v-if="property.pebImage === 'G'"><img src="../assets/peb_g.png"></span>
+        </div>
       </div>
     </router-link>
   </div>
@@ -139,6 +148,10 @@
 </script>
 
 <style lang="scss">
+
+.grid-flex {
+  align-items: center;
+}
 
   .label-status {
     background-color: #aed000;
