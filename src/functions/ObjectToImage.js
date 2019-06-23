@@ -1,7 +1,8 @@
-const ObjectToImage = ((array)) => {
-  const blob = new Blob(array, {type: this.featuredImage.Metadata.type})
-  this.featuredImage = new File([blob], this.featuredImage.Metadata.name, {type:this.featuredImage.Metadata.type});
-}
+const ObjectToImage = ((array, name, type) => {
+  const blob = new Blob(array, {type: type})
+  const image = new File([blob], name, {type: type});
 
+  return image;
+});
 
-export ObjectToImage
+export { ObjectToImage }

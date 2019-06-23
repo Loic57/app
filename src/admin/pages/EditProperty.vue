@@ -31,7 +31,11 @@
       <div class="grid-flex">
         <div class="column w-20" v-for="(file, index) in filesArrayURL" :key="file.id">
           <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
-            <div class="box-image__visual"><img :src="file" width="200"/></div>
+            <div class="box-image__visual">
+              <transition>
+                <img v-show="isLoad" :src="file" @load="loaded"  width="200">
+              </transition>
+            </div>
             <div class="box-image__content">
               <div class="delete" @click="deleteFile(index)">delete</div>
               <div class="featured" @click="featuredFile(index)">featured</div>
@@ -151,9 +155,11 @@
   import VueGoogleAutocomplete from 'vue-google-autocomplete'
   import { updateProperty } from '../../graphql/mutations';
   import { getProperty } from '../../graphql/queries';
+  import downscale from 'downscale';
   import { Storage } from 'aws-amplify';
   import Spinner from '../../components/Spinner'
-
+  import { DataURItoBlob } from '../../functions/DataURItoBlob'
+  import { ObjectToImage } from '../../functions/ObjectToImage'
 
   export default {
     name: 'EditProperty',
@@ -163,10 +169,11 @@
     },
     data() {
       return {
+        isLoad: false,
         spinner: false,
         featuredProperty: false,
         featuredImage: '',
-        filesNamesArray: [],
+        filesArrayNames: [],
         status: '',
         property: [],
         filesArrayURL: [],
@@ -191,45 +198,43 @@
           this.featuredProperty = this.property.featuredProperty;
           this.status = this.property.status[1];
           this.createFilesArray(data)
-
-          
-
           return data.getProperty;
         }
       }
     },
     methods: {
+      loaded() {
+        this.isLoad = true
+      },
       async createFilesArray(data) {
-        for(let i=0;i<data.getProperty.files.length;i++) {
-          await Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
-          .then((file) => {
-            this.filesArray.push(file)
-            if(this.filesArray.length == data.getProperty.files.length) {
-              for(let i=0;i<this.filesArray.length;i++) {
-                if(this.filesArray[i].Metadata.featured === 'featured') {
-                  this.indexFeatured = i //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
-                  this.featuredImage = this.filesArray[i]
+        if(this.filesArray.length < data.getProperty.files.length) {
+          for(let i=0;i<data.getProperty.files.length;i++) {
+            await Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
+            .then((file) => {
+              this.filesArray.push(file)
+              if(this.filesArray.length == data.getProperty.files.length) {
+                for(let i=0;i<this.filesArray.length;i++) {
+                  if(this.filesArray[i].Metadata.featured === 'featured') {
+                    this.indexFeatured = i //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
+                    this.featuredImage = this.filesArray[i]
+                    console.log(this.featuredImage)
+                  }
                 }
-                
-              }
 
-              for(let i=0;i<this.filesArray.length;i++) {
-                var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
-                var name = this.filesArray[i].Metadata.name;
-                var blob = new Blob([this.filesArray[i].Body], {type: this.filesArray[i].Metadata.type}); //on créé un blob
-                var newFile = new File([blob], name, {type:this.filesArray[i].Metadata.type}); //qu'on transforme en fichier
-                this.filesArray[i] = newFile;
-                this.filesNamesArray.push(newFile.name)
-                this.filesArrayURL.push(URL.createObjectURL(newFile));
+                for(let i=0;i<this.filesArray.length;i++) {
+                  var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
+                  var name = this.filesArray[i].Metadata.name;
+                  var newFile = ObjectToImage([this.filesArray[i].Body], name, this.filesArray[i].Metadata.type);
+                  this.filesArray[i] = newFile;
+                  this.filesArrayNames.push(newFile.name)
+                  this.filesArrayURL.push(URL.createObjectURL(newFile));
+                }
               }
-            }
-          })
-          .catch(err => console.log(err));
+            })
+            .catch(err => console.log(err));
+          }
+          ObjectToImage([this.featuredImage.Body], this.featuredImage.Metadata.name, this.featuredImage.Metadata.type);
         }
-
-        var blob = new Blob([this.featuredImage.Body], {type: this.featuredImage.Metadata.type})
-        this.featuredImage = new File([blob], this.featuredImage.Metadata.name, {type:this.featuredImage.Metadata.type});
-
       },
       editProperty() {
         const id = this.property.id,
@@ -247,9 +252,10 @@
           room = this.property.room,
           type = ['all', this.type],
           creation_date = this.property.creation_date,
-          files = this.filesNamesArray,
+          files = this.filesArrayNames,
           featuredImage = this.featuredImage,
-          featuredProperty = this.featuredProperty;
+          featuredProperty = this.featuredProperty,
+          hidden = this.property.hidden;
 
         this.$apollo.mutate({
           mutation: updateProperty,
@@ -271,11 +277,11 @@
               type,
               creation_date,
               files,
-              featuredProperty
+              featuredProperty,
+              hidden
             }
           }
         }).then((data) => {
-   
           this.spinner = true;
           Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
             contentType: this.featuredImage.type,
@@ -287,7 +293,7 @@
             }
           })
           .then (() => {
-            console.log('ici')
+            
             for(let i=0;i<this.filesArray.length;i++) {
               if(this.filesArray[i].name != this.featuredImage.name) {
                 Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
@@ -325,22 +331,28 @@
             this.featuredMessage = false;
             this.featuredImage = this.filesArray[i];
           }
-          //this.resizeImage(this.filesArray[i]); //on redimensionne les images
+        }
+      },
+      resizeFilesArrayImages() {
+        for(let i=0;i<this.filesArray.length;i++) {
+          downscale(this.filesArray[i], 600, 400)
+          .then((dataURL) => {
+            const resizedImage = DataURItoBlob(dataURL, i, this.filesArrayNames);
+            this.filesArray[i] = resizedImage;
+          })
         }
       },
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
-
-            var blob = event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type); 
             var type = event.target.files[i].type;
             var newType = type.substring(6);
-
-            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + newType, {type:event.target.files[i].type});
-
+            var newFile = ObjectToImage([event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type)], event.target.files[i].name, newType);
             this.filesArray.push(newFile); //tableau qui contient fichier img complet
+            this.filesArrayNames.push(newFile.name)
             this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
           }
+          this.resizeFilesArrayImages();
         }
       },
       getAddressData: function (addressData, placeResultData, id) {

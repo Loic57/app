@@ -22,8 +22,10 @@ export const onCreateProperty = `subscription OnCreateProperty {
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;
@@ -48,8 +50,10 @@ export const onUpdateProperty = `subscription OnUpdateProperty {
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;
@@ -74,8 +78,10 @@ export const onDeleteProperty = `subscription OnDeleteProperty {
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;

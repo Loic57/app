@@ -159,6 +159,9 @@
   import downscale from 'downscale';
   import uuidv1 from 'uuid/v1'
   import Spinner from '../../components/Spinner'
+
+  import { ObjectToImage } from '../../functions/ObjectToImage'
+  import { DataURItoBlob } from '../../functions/DataURItoBlob'
   
 
   var today = new Date();
@@ -254,8 +257,6 @@
           this.arrayStatus.push('all', this.status);
           this.arrayType.push('all', this.type);
 
-          console.log(this.filesArray)
-
           for(let i=0;i<this.filesArray.length;i++) {
             this.filesNamesArray.push(this.filesArray[i].name)
           }
@@ -281,11 +282,9 @@
                 eTotale = this.eTotale,
                 pebNumber = this.pebNumber,
                 pebImage = this.pebImage,
-                eSpec = this.eSpec;
+                eSpec = this.eSpec,
+                hidden = false;
                 
-
-                
-
           this.$apollo.mutate({
             mutation: createProperty,
             variables: {
@@ -310,7 +309,8 @@
               eTotale,
               pebNumber,
               pebImage,
-              eSpec
+              eSpec,
+              hidden
             }
           },
           update: (store, { data: { createProperty } }) => {
@@ -327,6 +327,7 @@
               //upload de l'image featured
               Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
                 contentType: this.featuredImage.type,
+                progressCallback(progress) {console.log(`Uploaded: ${progress.loaded}/${progress.total}`);},
                 metadata: { 
                   name: this.featuredImage.name,
                   featured: 'featured',
@@ -338,6 +339,7 @@
                 if(this.filesArray[i].name != this.featuredImage.name) {
                   Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
                     contentType: this.filesArray[i].type,
+                    progressCallback(progress) {console.log(`Uploaded: ${progress.loaded}/${progress.total}`);},
                     metadata: { 
                       name: this.filesArray[i].name,
                       size: JSON.stringify(this.filesArray[i].size)
@@ -347,8 +349,9 @@
                   })
                 }
               })
-              .catch((err) => {
-                console.log(err)
+              .catch((error) => {
+                console.log(error)
+                this.spinner = false;
               })
             }
           }).catch((error) => {
@@ -372,35 +375,13 @@
             this.featuredMessage = false;
             this.featuredImage = this.filesArray[i];
           }
-          //this.resizeImage(this.filesArray[i]); //on redimensionne les images
         }
       },
-      dataURItoBlob(dataURI, index) {
-        // convert base64 to raw binary data held in a string
-        // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-        var byteString = atob(dataURI.split(',')[1]);
-
-        // separate out the mime component
-        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
-
-        // write the bytes of the string to an ArrayBuffer
-        var ab = new ArrayBuffer(byteString.length);
-        var ia = new Uint8Array(ab);
-        for (var i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
-        }
-
-        // write the ArrayBuffer to a blob, and you're done
-        var blob = new Blob([ab]);
-        var file = new File([blob], this.filesArrayNames[index], {type:mimeString})
-        
-        return file;
-      },
-      resizeImage() {
+      resizeFilesArrayImages() {
         for(let i=0;i<this.filesArray.length;i++) {
-          downscale(this.filesArray[i], 600, 400).
-          then((dataURL) => {
-            const resizedImage = this.dataURItoBlob(dataURL, i);
+          downscale(this.filesArray[i], 600, 400)
+          .then((dataURL) => {
+            const resizedImage = DataURItoBlob(dataURL, i, this.filesArrayNames);
             this.filesArray[i] = resizedImage;
           })
         }
@@ -408,12 +389,12 @@
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
-            var blob = event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type); 
-            var newFile = new File([blob], Math.random().toString(11).replace('0.', '') + '.' + 'jpeg', {type:'image/jpeg'});
+            var newFile = ObjectToImage([event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type)], Math.random().toString(11).replace('0.', '') + '.' + 'jpeg', {type:'image/jpeg'});
             this.filesArray.push(newFile); //tableau qui contient fichier img complet
             this.filesArrayNames.push(newFile.name)
             this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
           }
+          this.resizeFilesArrayImages();
         }
       },
       getAddressData: function (addressData) {

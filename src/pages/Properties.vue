@@ -160,6 +160,9 @@
                 "type": {
                   "contains": this.TypeValue
                 },
+                "hidden": {
+                  "eq": false
+                }
               }
             }
           }
@@ -183,6 +186,9 @@
                 "location": {
                   "contains": this.LocationValue
                 },
+                "hidden": {
+                  "eq": false
+                }
               }
             }
           }
@@ -197,6 +203,8 @@
       // To demonstrate functionality of exposed component functions
       // Here we make focus on the user input
       this.$refs.address.focus();
+
+      console.log(this.properties)
     },
     methods: {
       getAddressData: function (addressData, placeResultData, id) {

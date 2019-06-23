@@ -1,5 +1,5 @@
 <template>
-  <div class="row-property" :class="{ 'is-featured': property.featuredProperty }">
+  <div class="row-property" :class="{ 'is-featured': property.featuredProperty, 'is-hidden': property.hidden }">
     <div class="row-property__image"><img :src=thumbnail /></div>
     <div class="row-property__content">
       <span class="content__title">{{property.reference}}<br><span>{{property.location}}</span></span>
@@ -25,6 +25,7 @@
 
       <div class="content__buttons"> 
         <button class="btn" @click="deleteProperty()">delete</button>
+        <button class="btn" @click="hideProperty()">hide</button>
         <router-link :to="{ name: 'EditProperty', params: { id: property.id, property: currentProperty }}"><span class="btn">edit</span></router-link>
       </div>
 
@@ -33,7 +34,7 @@
 </template>
 
 <script>
-  import { deleteProperty } from '../../graphql/mutations';
+  import { updateProperty, deleteProperty } from '../../graphql/mutations';
   import { listPropertys } from '../../graphql/queries';
   import { Auth, Storage } from 'aws-amplify';
 
@@ -44,7 +45,8 @@
       return {
         status: this.statusWithoutAll,
         currentProperty: this.property,
-        thumbnail: null
+        thumbnail: null,
+        hidden: false
       }
     },
     methods: {
@@ -52,15 +54,12 @@
         function remove(array, element) {
           return array.filter(el => el !== element);
         }
-
         const status = this.property.status;
         const statusWithoutAll = remove(status, "all");
         return statusWithoutAll.toString();
       },
       deleteProperty() {
-
         const id = this.property.id;
-
         this.$apollo.mutate({
           mutation: deleteProperty,
           variables: {
@@ -89,9 +88,70 @@
             }
         }).catch((error) => {
         })
+      },
+      hideProperty() {
+        let hiddenTemp = "";
+        if(this.property.hidden) {
+          this.property.hidden = false;
+          hiddenTemp = this.property.hidden;
+        }
+        else {
+          this.property.hidden = true;
+          hiddenTemp = this.property.hidden;
+        }
+
+        const id = this.property.id,
+          area = this.property.area,
+          exact_location = this.property.exact_location,
+          location = this.location,
+          price = this.property.price,
+          status = this.status,
+          title = this.property.title,
+          bathroom = this.property.bathroom,
+          bedroom = this.property.bedroom,
+          garage = this.property.garage,
+          parking = this.property.parking,
+          reference = this.property.reference,
+          room = this.property.room,
+          type = this.property.type,
+          creation_date = this.property.creation_date,
+          files = this.property.files,
+          featuredImage = this.property.featuredImage,
+          featuredProperty = false,
+          hidden = hiddenTemp;
+
+        this.$apollo.mutate({
+          mutation: updateProperty,
+          variables: {
+            input: {
+              id,
+              area,
+              exact_location,
+              location,
+              price,
+              status,
+              title,
+              bathroom,
+              bedroom,
+              garage,
+              parking,
+              reference,
+              room,
+              type,
+              creation_date,
+              files,
+              featuredProperty,
+              hidden
+            }
+          }
+        })
       }
     },
     mounted() {
+      if(this.property.hidden) {
+        this.hidden = true;
+        this.property.featuredProperty = false;
+      }
       for(let i=0;i<this.property.files.length;i++) {
         Storage.get(`${this.property.id}/${this.property.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
         .then((file) => {
@@ -133,6 +193,10 @@
 
     &.is-featured {
       border: 3px solid #aed000;
+    }
+
+    &.is-hidden {
+      background-color: gray;
     }
 
       .label-status {

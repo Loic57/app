@@ -25,8 +25,10 @@ export const getProperty = gql`query GetProperty($id: ID!) {
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;
@@ -56,8 +58,10 @@ export const listPropertys = gql`query ListPropertys(
       featuredProperty
       pebImage
       pebNumber
+      pebLetter
       eSpec
       eTotale
+      hidden
     }
     nextToken
   }

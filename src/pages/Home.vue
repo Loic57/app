@@ -72,6 +72,9 @@
             "filter": {
               "featuredProperty": {
                 "eq": true
+              },
+              "hidden": {
+                "eq": false
               }
             }
           }

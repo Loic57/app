@@ -24,8 +24,10 @@ export const createProperty = gql`mutation CreateProperty($input: CreateProperty
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;
@@ -50,8 +52,10 @@ export const updateProperty = gql`mutation UpdateProperty($input: UpdateProperty
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;
@@ -76,8 +80,10 @@ export const deleteProperty = gql`mutation DeleteProperty($input: DeleteProperty
     featuredProperty
     pebImage
     pebNumber
+    pebLetter
     eSpec
     eTotale
+    hidden
   }
 }
 `;

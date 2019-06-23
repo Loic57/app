@@ -20,5 +20,6 @@ type Property @model {
   pebNumber: String,
   pebLetter: String,
   eSpec: Int,
-  eTotale: Int
+  eTotale: Int,
+  hidden: Boolean
 }
