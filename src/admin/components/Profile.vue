@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Welcome, {{user.attributes.email}}</h1>
+    <h1>Welcome</h1>
 
     <router-link to="/admin/addProperty">Ajouter un bien immobilier</router-link><br>
     <router-link to="/admin/properties">Modifier un bien immobilier</router-link>

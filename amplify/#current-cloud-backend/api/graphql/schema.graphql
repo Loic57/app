@@ -1,5 +1,8 @@
-type Property @model {
-  id: String!
+type Property @model 
+@key(fields: ["id"])
+@key(name: "ByDate", fields: ["creation_date"], queryField: "PropertyByDate")
+@key(name: "ByPrice", fields: ["price"], queryField: "PropertyByPrice") {
+  id: ID!
   area: Int!
   exact_location: String
   location: String
@@ -11,7 +14,7 @@ type Property @model {
   garage: Int
   parking: Int
   reference: String!
-  room: Int
+  room: Int!
   type: [String]
   creation_date: String!
   files: [String]

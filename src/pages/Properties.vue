@@ -3,65 +3,82 @@
     <div class="container">
       <h1>Biens immobiliers</h1>
       <h4 v-if="loading">Loading...</h4>
-      <form v-on:submit.prevent>
 
-        <div class="input">
-          <label><input type="radio" name="choix" v-model="StatusValue" value="all" /> Tout </label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="acheter" /> Acheter</label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="louer" /> Louer</label><br>
-          <label><input type="radio" name="choix" v-model="StatusValue" value="viager" /> Viager </label>
+      <div class="grid-flex">
+        <div class="column w-50">
+          <form v-on:submit.prevent>
+
+            <div class="input">
+              <label><input type="radio" name="choix" v-model="StatusValue" value="all" /> Tout </label><br>
+              <label><input type="radio" name="choix" v-model="StatusValue" value="acheter" /> Acheter</label><br>
+              <label><input type="radio" name="choix" v-model="StatusValue" value="louer" /> Louer</label><br>
+              <label><input type="radio" name="choix" v-model="StatusValue" value="viager" /> Viager </label>
+            </div>
+
+            <div class="input">
+              <label>Type de bien</label><br>
+              <select v-model="TypeValue">
+                <option value="" :selected="true">Sélectionner un type de bien</option>
+                <option value="all">Tous</option>
+                <option value="Maison">Maison</option>
+                <option value="Appartement">Appartement</option>
+              </select>
+            </div>
+
+            <div class="input">
+              <label>Surface en m²</label><br>
+              <select v-model="AreaMinValue">
+                <option :selected="true" disabled>Min</option>
+                <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
+              </select>
+              <select v-model="AreaMaxValue">
+                <option :selected="true" disabled>Max</option>
+                <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
+              </select>
+            </div>
+
+            <div class="input">
+              <label>Prix</label><br>
+              <select v-model="PriceMinValue" id="PriceMin">
+                <option value="" :selected="true">Min</option>
+                <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
+              </select>
+              <select v-model="PriceMaxValue" id="PriceMax">
+                <option value="" :selected="true">Max</option>
+                <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
+              </select>
+            </div>
+
+            <div class="input">
+              <vue-google-autocomplete
+                ref="address"
+                id="map"
+                classname="form-control"
+                placeholder="Start typing"
+                v-on:placechanged="getAddressData"
+                types="(cities)"
+                country="be"
+                v-model="LocationValue"
+              
+            >
+            </vue-google-autocomplete>
+            {{LocationValue}}
+            </div>
+
+            <button type="button" @click="cleanFilters()">Clean filters</button>
+          </form>
         </div>
+        <div class="column w-50">
 
-        <div class="input">
-          <label>Type de bien</label><br>
-          <select v-model="TypeValue">
-            <option value="" :selected="true">Sélectionner un type de bien</option>
-            <option value="all">Tous</option>
-            <option value="Maison">Maison</option>
-            <option value="Appartement">Appartement</option>
+          <select @change="changeOrder($event)">
+            <option selected>Trier</option>
+            <option value="ascendingPrice">Par prix du moins cher au plus cher</option>
+            <option value="decreasingPrice">Par prix du plus cher au moins cher</option>
+            <option value="ascendingArea">De la plus petite surface à la plus grande</option>
+            <option value="decreasingArea">De la plus grande surface à la plus petite</option>
           </select>
         </div>
-
-        <div class="input">
-          <label>Surface en m²</label><br>
-          <select v-model="AreaMinValue">
-            <option :selected="true" disabled>Min</option>
-            <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
-          </select>
-          <select v-model="AreaMaxValue">
-            <option :selected="true" disabled>Max</option>
-            <option v-for="(item, key) in AreaRange" :value="key" :key="item">{{item}}</option>
-          </select>
-        </div>
-
-        <div class="input">
-          <label>Prix</label><br>
-          <select v-model="PriceMinValue" id="PriceMin">
-            <option value="" :selected="true">Min</option>
-            <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
-          </select>
-          <select v-model="PriceMaxValue" id="PriceMax">
-            <option value="" :selected="true">Max</option>
-            <option v-for="(item, key) in PriceRange" :value="key" :key="item">{{item}}</option>
-          </select>
-        </div>
-
-        <div class="input">
-          <vue-google-autocomplete
-            ref="address"
-            id="map"
-            classname="form-control"
-            placeholder="Start typing"
-            v-on:placechanged="getAddressData"
-            types="(cities)"
-            country="be"
-            v-model="LocationValue"
-           
-        >
-        </vue-google-autocomplete>
-        {{LocationValue}}
-        </div>
-      </form>
+      </div>
 
       <div class="grid-flex" >
         <div class="column w-33" v-for="property in properties" :key="property.id">
@@ -196,18 +213,73 @@
         update(data) {
           return data.listPropertys.items
         }
-
       }
     },
     mounted() {
       // To demonstrate functionality of exposed component functions
       // Here we make focus on the user input
       this.$refs.address.focus();
-
-      console.log(this.properties)
     },
     methods: {
-      getAddressData: function (addressData, placeResultData, id) {
+      cleanFilters: function() {
+        this.TypeValue = 'all';
+        this.StatusValue = 'all';
+        this.LocationValue = '';
+        this.AreaMinValue = 0;
+        this.AreaMaxValue = 999999;
+        this.PriceMinValue = 0;
+        this.PriceMaxValue = 99999999;
+      },
+      changeOrder(event) {
+        if(event.target.value === 'ascendingPrice') {
+          function orderASC(a, b) {
+            if (a.price < b.price)
+              return -1;
+            if (a.price > b.price)
+              return 1;
+            return 0;
+          }
+
+          return this.properties.sort(orderASC);
+        }
+
+        if(event.target.value === 'decreasingPrice') {
+          function orderDESC(a, b) {
+            if (a.price < b.price)
+              return 1;
+            if (a.price > b.price)
+              return -1;
+            return 0;
+          }
+
+          return this.properties.sort(orderDESC);
+        }
+
+        if(event.target.value === 'ascendingArea') {
+          function orderASC(a, b) {
+            if (a.area < b.area)
+              return -1;
+            if (a.area > b.area)
+              return 1;
+            return 0;
+          }
+
+          return this.properties.sort(orderASC);
+        }
+
+        if(event.target.value === 'ascendingArea') {
+          function orderASC(a, b) {
+            if (a.area < b.area)
+              return -1;
+            if (a.area > b.area)
+              return 1;
+            return 0;
+          }
+
+          return this.properties.sort(orderASC);
+        }
+      },
+      getAddressData: function (addressData) {
         this.address = addressData;
         this.LocationValue = this.address.locality;
       }

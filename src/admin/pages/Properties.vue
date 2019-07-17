@@ -36,6 +36,7 @@
         PriceMaxValue: 99999999,
         LocationValue: 'all',
         PriceRange: {
+          "min": "min",
           "10000":"10000",
           "50000":"50000",
           "100000":"100000",
@@ -97,31 +98,6 @@
           this.propertyCreated = false;
           this.propertyUpdated = false;
       }, 4000)
-    },
-    methods: {
-      updateQuery() {
-        this.$apollo.queries.properties.refetch({
-          "filter": {
-            "type": {
-              "contains": this.TypeValue
-            },
-            "status": {
-              "contains": this.StatusValue
-            },
-            "location": {
-              "contains": this.LocationValue
-            },
-            "area": {
-              "ge": this.AreaMinValue, 
-              "le": this.AreaMaxValue
-            },
-            "price": {
-              "ge": this.PriceMinValue, 
-              "le": this.PriceMaxValue
-            }
-          }
-        })
-      }
     }
   }
 </script>

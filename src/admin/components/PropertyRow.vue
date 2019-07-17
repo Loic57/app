@@ -25,7 +25,8 @@
 
       <div class="content__buttons"> 
         <button class="btn" @click="deleteProperty()">delete</button>
-        <button class="btn" @click="hideProperty()">hide</button>
+        <button class="btn" @click="hideProperty()" v-if="property.hidden">show</button>
+        <button class="btn" @click="hideProperty()" v-if="!property.hidden">hide</button>
         <router-link :to="{ name: 'EditProperty', params: { id: property.id, property: currentProperty }}"><span class="btn">edit</span></router-link>
       </div>
 
@@ -83,8 +84,6 @@
         }).then((data) => {
             for(let i=0;i<data.data.deleteProperty.files.length;i++) { //on supprime toutes les images
               Storage.remove(`${id}/${data.data.deleteProperty.files[i]}`)
-              .then((result) => {console.log(result)})
-              .catch(err => console.log(err));
             }
         }).catch((error) => {
         })
@@ -143,6 +142,19 @@
               featuredProperty,
               hidden
             }
+          },
+          update: (store, { data: { updateProperty } }) => {
+            const data = store.readQuery({
+              query: listPropertys
+            })
+
+            for( var i = 0; i < data.listPropertys.items.length; i++){ 
+              if(data.listPropertys.items[i].id === id) {
+                data.listPropertys.items[i] = updateProperty;
+              }
+            }
+
+            store.writeQuery({ query: listPropertys, data })
           }
         })
       }

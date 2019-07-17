@@ -29,16 +29,16 @@
       </div>
 
       <div class="grid-flex">
-        <div class="column w-20" v-for="(file, index) in filesArrayURL" :key="file.id">
-          <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
+        <div class="column w-20" v-for="file in filesArray" :key="file[1]">
+          <div class="box-image" v-bind:class="{ 'featured': indexFeatured === file[1]}">
             <div class="box-image__visual">
               <transition>
-                <img v-show="isLoad" :src="file" @load="loaded"  width="200">
+                <img v-show="isLoad" :src="file[2]" @load="loaded"  width="200">
               </transition>
             </div>
             <div class="box-image__content">
-              <div class="delete" @click="deleteFile(index)">delete</div>
-              <div class="featured" @click="featuredFile(index)">featured</div>
+              <div class="delete" @click="deleteFile(file[1])">delete</div>
+              <div class="featured" @click="featuredFile(file[1])">featured</div>
             </div>
           </div>
         </div>
@@ -169,14 +169,17 @@
     },
     data() {
       return {
+        id: '',
         isLoad: false,
         spinner: false,
         featuredProperty: false,
         featuredImage: '',
-        filesArrayNames: [],
+        filesNamesArray: [],
+        filesToDeleteFromServer: [],
         status: '',
         property: [],
         filesArrayURL: [],
+        filesNamesArray: [],
         type: '',
         filesArray: [],
         indexFeatured: -1,
@@ -209,34 +212,42 @@
       async createFilesArray(data) {
         if(this.filesArray.length < data.getProperty.files.length) {
           for(let i=0;i<data.getProperty.files.length;i++) {
+            this.id = data.getProperty.id;
             await Storage.get(`${data.getProperty.id}/${data.getProperty.files[i]}`, {download: true}) // on obtient les images qui sont sur le serveur
             .then((file) => {
               this.filesArray.push(file)
+
               if(this.filesArray.length == data.getProperty.files.length) {
                 for(let i=0;i<this.filesArray.length;i++) {
-                  if(this.filesArray[i].Metadata.featured === 'featured') {
-                    this.indexFeatured = i //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
-                    this.featuredImage = this.filesArray[i]
-                    console.log(this.featuredImage)
-                  }
-                }
-
-                for(let i=0;i<this.filesArray.length;i++) {
                   var size = parseInt(this.filesArray[i].Metadata.size); //on récupère la taille de l'image 
-                  var name = this.filesArray[i].Metadata.name;
-                  var newFile = ObjectToImage([this.filesArray[i].Body], name, this.filesArray[i].Metadata.type);
-                  this.filesArray[i] = newFile;
-                  this.filesArrayNames.push(newFile.name)
-                  this.filesArrayURL.push(URL.createObjectURL(newFile));
+                  var name = this.filesArray[i].Metadata.name; //on récupère le nom de l'image
+                  var newFile = ObjectToImage([this.filesArray[i].Body], name, this.filesArray[i].Metadata.type); //on créé un fichier image
+                  this.filesArray[i][0] = newFile;
+                  this.filesArray[i][1] = `https://app4fd3bd165a5f4b1e8fb0c79f167a6567-dev.s3.eu-west-2.amazonaws.com/public/${data.getProperty.id}/${data.getProperty.files[i]}`;
+                  this.filesArray[i][2] = URL.createObjectURL(this.filesArray[i][0]);
+                  this.filesArray[i][3] = newFile.name;
+
+                  if(this.filesArray[i].Metadata.featured === 'featured') {
+                    this.indexFeatured = this.filesArray[i][1] //on ajoute la class featured pour mettre en évidence l'image qui est en 'featured'
+                    this.featuredImage = this.filesArray[i];
+                  }
                 }
               }
             })
             .catch(err => console.log(err));
           }
-          ObjectToImage([this.featuredImage.Body], this.featuredImage.Metadata.name, this.featuredImage.Metadata.type);
+          
+          this.featuredImage[0] = ObjectToImage([this.featuredImage.Body], this.featuredImage.Metadata.name, this.featuredImage.Metadata.type);
+          this.featuredImage[1] = `https://app4fd3bd165a5f4b1e8fb0c79f167a6567-dev.s3.eu-west-2.amazonaws.com/public/${data.getProperty.id}/${this.featuredImage[0].name}`;
+          this.featuredImage[2] = URL.createObjectURL(this.featuredImage[0]);
+          this.featuredImage[3] = this.featuredImage[0].name;
         }
       },
       editProperty() {
+        for(let i=0;i<this.filesArray.length;i++) {
+          this.filesNamesArray.push(this.filesArray[i][0].name)
+        }
+
         const id = this.property.id,
           area = this.property.area,
           exact_location = this.property.exact_location,
@@ -252,7 +263,7 @@
           room = this.property.room,
           type = ['all', this.type],
           creation_date = this.property.creation_date,
-          files = this.filesArrayNames,
+          files = this.filesNamesArray,
           featuredImage = this.featuredImage,
           featuredProperty = this.featuredProperty,
           hidden = this.property.hidden;
@@ -283,24 +294,29 @@
           }
         }).then((data) => {
           this.spinner = true;
-          Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
-            contentType: this.featuredImage.type,
-            featured: true,
+
+          for(let i=0;i<this.filesToDeleteFromServer.length;i++) {
+            Storage.remove(`${id}/${this.filesToDeleteFromServer[i]}`);
+          }
+
+          Storage.put(`${id}/${this.featuredImage[0].name}`, this.featuredImage[0], {
+            contentType: this.featuredImage[0].type,
+            progressCallback(progress) {console.log(`Uploaded: ${progress.loaded}/${progress.total}`);},
             metadata: { 
-              name: this.featuredImage.name,
+              name: this.featuredImage[0].name,
               featured: 'featured',
-              size: JSON.stringify(this.featuredImage.size)
+              size: JSON.stringify(this.featuredImage[0].size)
             }
           })
           .then (() => {
-            
             for(let i=0;i<this.filesArray.length;i++) {
-              if(this.filesArray[i].name != this.featuredImage.name) {
-                Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
-                  contentType: this.filesArray[i].type,
+              if(this.filesArray[i][0].name != this.featuredImage[0].name) {
+                Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
+                  contentType: this.filesArray[i][0].type,
+                  progressCallback(progress) {console.log(`Uploaded: ${progress.loaded}/${progress.total}`);},
                   metadata: { 
-                    name: this.filesArray[i].name,
-                    size: JSON.stringify(this.filesArray[i].size)
+                    name: this.filesArray[i][0].name,
+                    size: JSON.stringify(this.filesArray[i][0].size)
                   }
                 }).then(() => {
                   this.$router.push({ name: 'AdminProperties', params: {propertyUpdated: true} }) //redirect
@@ -316,18 +332,21 @@
           console.log(error)
         })
       },
-      deleteFile(index) {
+      deleteFile(file) {
         for(let i=0;i<this.filesArray.length;i++) {
-          if(i == index) {
-            this.filesArrayURL.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
-            this.filesArray.splice(index, 1);
+          if(this.filesArray[i][1] === file) {
+            if(this.indexFeatured === file) {
+              this.indexFeatured = -1;
+            }
+            this.filesArray.splice(i, 1);
+            this.filesToDeleteFromServer.push(this.filesNamesArray[i]);
           }
         }
       },
-      featuredFile(index) {
+      featuredFile(file) {
         for(let i=0;i<this.filesArray.length;i++) {
-          if(i == index) {
-            this.indexFeatured = index;
+          if(this.filesArray[i][1] == file) {
+            this.indexFeatured = file;
             this.featuredMessage = false;
             this.featuredImage = this.filesArray[i];
           }
@@ -335,25 +354,23 @@
       },
       resizeFilesArrayImages() {
         for(let i=0;i<this.filesArray.length;i++) {
-          downscale(this.filesArray[i], 600, 400)
+          downscale(this.filesArray[i][0], 600, 400)
           .then((dataURL) => {
-            const resizedImage = DataURItoBlob(dataURL, i, this.filesArrayNames);
-            this.filesArray[i] = resizedImage;
+            const resizedImage = DataURItoBlob(dataURL, this.filesArray[i][0].name);
+            this.filesArray[i][0] = resizedImage;
           })
         }
       },
       onFileChanged(event) { //au moment de l'ajout des images via le champs input type file
         if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
-            var type = event.target.files[i].type;
-            var newType = type.substring(6);
-            var newFile = ObjectToImage([event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type)], event.target.files[i].name, newType);
-            this.filesArray.push(newFile); //tableau qui contient fichier img complet
-            this.filesArrayNames.push(newFile.name)
-            this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
+            var newFile = ObjectToImage([event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type)], Math.random().toString(11).replace('0.', '') + '.' + 'jpeg', {type:'image/jpeg'});
+            this.filesArray.push([newFile, '', URL.createObjectURL(event.target.files[i]), newFile.name]); //tableau qui contient fichier img complet
           }
           this.resizeFilesArrayImages();
         }
+
+        console.log(this.filesArray);
       },
       getAddressData: function (addressData, placeResultData, id) {
         this.address = addressData;

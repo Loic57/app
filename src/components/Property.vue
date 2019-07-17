@@ -57,7 +57,7 @@
 
 
   export default {
-    name: 'test',
+    name: 'property',
     components: {
       VueLoadImage
     },

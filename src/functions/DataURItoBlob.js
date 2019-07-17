@@ -1,6 +1,6 @@
-const DataURItoBlob = ((dataURI, index, array) => {
+const DataURItoBlob = ((dataURI, array) => {
   var byteString = atob(dataURI.split(',')[1]);
-
+  
   // separate out the mime component
   var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 
@@ -13,8 +13,8 @@ const DataURItoBlob = ((dataURI, index, array) => {
 
   // write the ArrayBuffer to a blob, and you're done
   var blob = new Blob([ab]);
-  var file = new File([blob], array[index], {type:mimeString})
-  
+  var file = new File([blob], array, {type:mimeString})
+
   return file;
 });
 

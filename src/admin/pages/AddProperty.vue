@@ -31,12 +31,16 @@
       </div>
 
       <div class="grid-flex">
-        <div class="column w-20" v-for="(file, index) in filesArrayURL" :key="file.id">
-          <div class="box-image" v-bind:class="{ 'featured': indexFeatured === index}">
-            <div class="box-image__visual"><img :src="file" width="200"/></div>
+        <div class="column w-20" v-for="file in filesArray" :key="file[1]">
+          <div class="box-image" v-bind:class="{ 'featured': indexFeatured === file[1]}">
+            <div class="box-image__visual">
+              <transition>
+                <img v-show="isLoad" :src="file[1]" @load="loaded" width="200">
+              </transition>
+            </div>
             <div class="box-image__content">
-              <div class="delete" @click="deleteFile(index)">delete</div>
-              <div class="featured" @click="featuredFile(index)">featured</div>
+              <div class="delete" @click="deleteFile(file[1])">delete</div>
+              <div class="featured" @click="featuredFile(file[1])">featured</div>
             </div>
           </div>
         </div>
@@ -177,6 +181,7 @@
     },
     data() {
       return {
+        isLoad: false,
         eTotale: '',
         pebNumber: '',
         pebImage: '',
@@ -186,7 +191,6 @@
         skipQuery: true,
         filesArray: [],
         filesArrayURL: [],
-        filesArrayNames: [],
         featuredImage: null,
         featuredProperty: false,
         filesNamesArray: [],
@@ -222,6 +226,9 @@
       }
     },
     methods: {
+      loaded() {
+        this.isLoad = true
+      },
       checkFeaturedNumber() {
         let arrayFeaturedProperties = [];
         this.featuredPropertiesNumberMessage = false;
@@ -258,33 +265,33 @@
           this.arrayType.push('all', this.type);
 
           for(let i=0;i<this.filesArray.length;i++) {
-            this.filesNamesArray.push(this.filesArray[i].name)
+            this.filesNamesArray.push(this.filesArray[i][0].name)
           }
 
           const id = uuidv1(),
-                area = parseInt(this.area),
-                exact_location = this.exact_location,
-                location = this.location,
-                price = parseInt(this.price),
-                status = this.arrayStatus,
-                title = this.title,
-                bathroom = parseInt(this.bathroom),
-                bedroom = parseInt(this.bedroom),
-                garage = parseInt(this.garage),
-                parking = parseInt(this.parking),
-                reference = this.reference,
-                room = parseInt(this.room),
-                type = this.arrayType,
-                creation_date = this.creation_date,
-                files = this.filesNamesArray,
-                featuredImage = this.featuredImage.name,
-                featuredProperty = this.featuredProperty,
-                eTotale = this.eTotale,
-                pebNumber = this.pebNumber,
-                pebImage = this.pebImage,
-                eSpec = this.eSpec,
-                hidden = false;
-                
+            area = parseInt(this.area),
+            exact_location = this.exact_location,
+            location = this.location,
+            price = parseInt(this.price),
+            status = this.arrayStatus,
+            title = this.title,
+            bathroom = parseInt(this.bathroom),
+            bedroom = parseInt(this.bedroom),
+            garage = parseInt(this.garage),
+            parking = parseInt(this.parking),
+            reference = this.reference,
+            room = parseInt(this.room),
+            type = this.arrayType,
+            creation_date = this.creation_date,
+            files = this.filesNamesArray,
+            featuredImage = this.featuredImage.name,
+            featuredProperty = this.featuredProperty,
+            eTotale = this.eTotale,
+            pebNumber = this.pebNumber,
+            pebImage = this.pebImage,
+            eSpec = this.eSpec,
+            hidden = false;
+
           this.$apollo.mutate({
             mutation: createProperty,
             variables: {
@@ -317,32 +324,30 @@
             const data = store.readQuery({
               query: listPropertys
             })
-
             data.listPropertys.items.push(createProperty)
-
             store.writeQuery({ query: listPropertys, data })
           }
         }).then(() => {
             for(let i=0;i<this.filesArray.length;i++) {
               //upload de l'image featured
-              Storage.put(`${id}/${this.featuredImage.name}`, this.featuredImage, {
-                contentType: this.featuredImage.type,
+              Storage.put(`${id}/${this.featuredImage[0].name}`, this.featuredImage[0], {
+                contentType: this.featuredImage[0].type,
                 progressCallback(progress) {console.log(`Uploaded: ${progress.loaded}/${progress.total}`);},
                 metadata: { 
-                  name: this.featuredImage.name,
+                  name: this.featuredImage[0].name,
                   featured: 'featured',
-                  size: JSON.stringify(this.featuredImage.size)
+                  size: JSON.stringify(this.featuredImage[0].size)
                 }
               })
               .then (() => {
                 //et ensuite de toutes les autres images
-                if(this.filesArray[i].name != this.featuredImage.name) {
-                  Storage.put(`${id}/${this.filesArray[i].name}`, this.filesArray[i], {
-                    contentType: this.filesArray[i].type,
+                if(this.filesArray[i][0].name != this.featuredImage.name) {
+                  Storage.put(`${id}/${this.filesArray[i][0].name}`, this.filesArray[i][0], {
+                    contentType: this.filesArray[i][0].type,
                     progressCallback(progress) {console.log(`Uploaded: ${progress.loaded}/${progress.total}`);},
                     metadata: { 
-                      name: this.filesArray[i].name,
-                      size: JSON.stringify(this.filesArray[i].size)
+                      name: this.filesArray[i][0].name,
+                      size: JSON.stringify(this.filesArray[i][0].size)
                     }
                   }).then(() => {
                     this.$router.push({ name: 'AdminProperties', params: {propertyCreated: true} }) //redirect
@@ -360,18 +365,20 @@
           })
         }
       },
-      deleteFile(index) {
+      deleteFile(file) {
         for(let i=0;i<this.filesArray.length;i++) {
-          if(i == index) {
-            this.filesArrayURL.splice(index, 1); //on supprime une seule entrée du tableau à partir de l'index
-            this.filesArray.splice(index, 1);
+          if(this.filesArray[i][1] === file) {
+            if(this.indexFeatured === file) {
+              this.indexFeatured = -1;
+            }
+            this.filesArray.splice(i, 1);
           }
         }
       },
-      featuredFile(index) {
+      featuredFile(file) {
         for(let i=0;i<this.filesArray.length;i++) {
-          if(i == index) {
-            this.indexFeatured = index;
+          if(this.filesArray[i][1] == file) {
+            this.indexFeatured = file;
             this.featuredMessage = false;
             this.featuredImage = this.filesArray[i];
           }
@@ -379,10 +386,10 @@
       },
       resizeFilesArrayImages() {
         for(let i=0;i<this.filesArray.length;i++) {
-          downscale(this.filesArray[i], 600, 400)
+          downscale(this.filesArray[i][0], 600, 400)
           .then((dataURL) => {
-            const resizedImage = DataURItoBlob(dataURL, i, this.filesArrayNames);
-            this.filesArray[i] = resizedImage;
+            const resizedImage = DataURItoBlob(dataURL, this.filesArray[i][0].name);
+            this.filesArray[i][0] = resizedImage;
           })
         }
       },
@@ -390,9 +397,7 @@
         if(event.target.files.length != 0) { //s'il y a réellement des images
           for(let i=0;i<event.target.files.length;i++) {
             var newFile = ObjectToImage([event.target.files[i].slice(0, event.target.files[i].size, event.target.files[i].type)], Math.random().toString(11).replace('0.', '') + '.' + 'jpeg', {type:'image/jpeg'});
-            this.filesArray.push(newFile); //tableau qui contient fichier img complet
-            this.filesArrayNames.push(newFile.name)
-            this.filesArrayURL.push(URL.createObjectURL(event.target.files[i])); //tableau qui contient url custom pour preview des images
+            this.filesArray.push([newFile, URL.createObjectURL(event.target.files[i])]); //tableau qui contient fichier img complet
           }
           this.resizeFilesArrayImages();
         }
